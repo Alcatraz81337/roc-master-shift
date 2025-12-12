@@ -11,7 +11,7 @@ python --version >nul 2>&1
 if %errorlevel% == 0 (
     echo Используется Python для запуска сервера...
     echo.
-    echo Откройте в браузере: http://localhost:8000/ROC_Analytics_Dashboard%%20v8.html
+    echo Откройте в браузере: http://localhost:8000/index.html
     echo.
     echo Для остановки нажмите Ctrl+C
     echo.
@@ -22,7 +22,7 @@ if %errorlevel% == 0 (
     if %errorlevel% == 0 (
         echo Используется Node.js для запуска сервера...
         echo.
-        echo Откройте в браузере: http://localhost:8000/ROC_Analytics_Dashboard%%20v8.html
+        echo Откройте в браузере: http://localhost:8000/index.html
         echo.
         echo Для остановки нажмите Ctrl+C
         echo.

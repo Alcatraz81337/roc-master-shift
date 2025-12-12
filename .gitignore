@@ -1,25 +1,14 @@
-﻿# РЎР»СѓР¶РµР±РЅС‹Рµ С„Р°Р№Р»С‹
+﻿# Cursor IDE
+.cursor/
+
+# System files
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# Р’СЂРµРјРµРЅРЅС‹Рµ С„Р°Р№Р»С‹
-*.tmp
-*.temp
-*.log
-*.swp
-*.swo
-*~
-
-# IDE С„Р°Р№Р»С‹
+# IDE
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
 
-# РЎРёСЃС‚РµРјРЅС‹Рµ С„Р°Р№Р»С‹
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
+# Temporary files
+*.tmp
+*.log

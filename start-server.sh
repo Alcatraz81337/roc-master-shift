@@ -11,7 +11,7 @@ echo ""
 if command -v python3 &> /dev/null; then
     echo "Используется Python 3 для запуска сервера..."
     echo ""
-    echo "Откройте в браузере: http://localhost:8000/ROC_Analytics_Dashboard%20v8.html"
+    echo "Откройте в браузере: http://localhost:8000/index.html"
     echo ""
     echo "Для остановки нажмите Ctrl+C"
     echo ""
@@ -19,7 +19,7 @@ if command -v python3 &> /dev/null; then
 elif command -v python &> /dev/null; then
     echo "Используется Python для запуска сервера..."
     echo ""
-    echo "Откройте в браузере: http://localhost:8000/ROC_Analytics_Dashboard%20v8.html"
+    echo "Откройте в браузере: http://localhost:8000/index.html"
     echo ""
     echo "Для остановки нажмите Ctrl+C"
     echo ""
@@ -27,7 +27,7 @@ elif command -v python &> /dev/null; then
 elif command -v node &> /dev/null; then
     echo "Используется Node.js для запуска сервера..."
     echo ""
-    echo "Откройте в браузере: http://localhost:8000/ROC_Analytics_Dashboard%20v8.html"
+    echo "Откройте в браузере: http://localhost:8000/index.html"
     echo ""
     echo "Для остановки нажмите Ctrl+C"
     echo ""

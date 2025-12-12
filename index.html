@@ -455,7 +455,7 @@
                     <div class="metric-card">
                         <span class="big-number-accent c-white" data-metric="balance-violations">67</span>
                         <div class="metric-text-group">
-                            <span class="text-desc">Отреагировано нарушений</span>
+                            <span class="text-desc">Выявлено неисполнение директив</span>
                         </div>
                     </div>
                 </div>
@@ -513,14 +513,20 @@
                     <div class="metric-card">
                         <span class="big-number-accent c-white" data-metric="ram-directives-2">89</span>
                         <div class="metric-text-group">
-                            <span class="text-desc">Директив на улучшение дорожных условий</span>
+                            <span class="text-desc">Устранено проблемных участков</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="big-number-accent c-white" data-metric="ram-downtime-aux">0</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Выявлено простоев вспом. техники</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- NEW: Card Effect -->
                 <div class="card-effect">
-                    Эффект: скорость увеличена на <span class="c-blue" data-metric="ram-effect">3</span> <span class="c-blue">км/ч</span>
+                    Эффект: скорость увеличена на <span class="c-blue" data-metric="ram-effect">1.2</span> <span class="c-blue">км/ч</span>
                 </div>
 
                 <!-- Card Footer -->
@@ -642,6 +648,7 @@
                 'ram-anomalies': { sheet: 'RAM', range: 'B2', type: 'number' },
                 'ram-directives': { sheet: 'RAM', range: 'B3', type: 'number' },
                 'ram-directives-2': { sheet: 'RAM', range: 'B4', type: 'number' },
+                'ram-downtime-aux': { sheet: 'RAM', range: 'M8', type: 'number' },
                 'ram-effect': { sheet: 'RAM', range: 'B5', type: 'number' },
                 'ram-event': { sheet: 'RAM', range: 'B6', type: 'text' },
                 
@@ -985,6 +992,7 @@
             updateElementValue(document.querySelector('[data-metric="ram-anomalies"]'), metrics['ram-anomalies']);
             updateElementValue(document.querySelector('[data-metric="ram-directives"]'), metrics['ram-directives']);
             updateElementValue(document.querySelector('[data-metric="ram-directives-2"]'), metrics['ram-directives-2']);
+            updateElementValue(document.querySelector('[data-metric="ram-downtime-aux"]'), metrics['ram-downtime-aux']);
             updateElementValue(document.querySelector('[data-metric="ram-effect"]'), metrics['ram-effect']);
             updateElementValue(document.querySelector('[data-metric="ram-event"]'), metrics['ram-event'], false);
             
