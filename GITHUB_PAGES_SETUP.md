@@ -106,8 +106,13 @@ git remote add origin https://github.com/[ваш-username]/[название-р�
 git branch -M main
 
 # Отправьте код на GitHub
+# Если репозиторий был создан с README через веб-интерфейс, сначала получите изменения:
+git pull origin main --allow-unrelated-histories
+# Затем отправьте:
 git push -u origin main
 ```
+
+**Примечание**: Если при `git push` появится ошибка о том, что удаленный репозиторий содержит изменения, выполните `git pull origin main --allow-unrelated-histories` перед `git push`.
 
 ### Шаг 4: Настройка GitHub Pages
 

@@ -631,7 +631,7 @@
                 'total-financial': { sheet: 'Общие', range: 'B4', type: 'number' },
                 
                 // BALANCE метрики (лист "BALANCE")
-                'balance-recommendations': { sheet: 'BALANCE', range: 'B2', type: 'number' },
+                'balance-recommendations': { sheet: 'BALANCE', range: 'N4', type: 'number' },
                 'balance-deficit': { sheet: 'BALANCE', range: 'B3', type: 'number' },
                 'balance-timely': { sheet: 'BALANCE', range: 'B4', type: 'number' },
                 'balance-violations': { sheet: 'BALANCE', range: 'B5', type: 'number' },
@@ -867,6 +867,10 @@
                     fetchCellValue(config.sheet, config.range)
                         .then(value => {
                             if (config.type === 'number') {
+                                // Проверяем пустое значение ДО парсинга, чтобы отличить реальный 0 от пустого значения
+                                if (value === null || value === '' || value === undefined) {
+                                    console.warn(`[WARNING] Метрика ${metricId} вернула пустое значение из ${config.sheet}!${config.range}`);
+                                }
                                 metrics[metricId] = parseNumber(value);
                             } else {
                                 metrics[metricId] = value || '';
