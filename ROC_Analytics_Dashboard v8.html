@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROC Analytics Dashboard 2025</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- Шрифт Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Базовые цвета */
+            --bg-dark: #121212;
+            --bg-card: rgba(255, 255, 255, 0.02);
+            --bg-card-hover: rgba(255, 255, 255, 0.04);
+            
+            /* Стекломорфизм границы */
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-bright: rgba(255, 255, 255, 0.15);
+
+            /* Акценты (Neon 2025) */
+            --color-lime: #D4FF50; /* Салатовый (Acid Lime) */
+            --color-blue: #3EB9FF; /* Голубой (Electric Blue) */
+            --color-purple: #B686FF; /* Фиолетовый */
+            --color-orange: #FF8F50;
+            --color-red: #FF4B4B;
+            
+            /* Текст */
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.55);
+            --text-muted: rgba(255, 255, 255, 0.3);
+
+            /* Размеры */
+            --radius-outer: 24px;
+            --radius-inner: 12px;
+            --gap: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 24px;
+            /* Легкий шум для премиальности */
+            background-image: radial-gradient(circle at 50% 0%, rgba(212, 255, 80, 0.03), transparent 40%);
+        }
+
+        /* --- Bento Grid System --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: var(--gap);
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* --- Glassmorphism Card Base --- */
+        .bento-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-outer);
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bento-card:hover {
+            border-color: var(--border-glass-bright);
+            background: var(--bg-card-hover);
+        }
+
+        /* Декоративный шум внутри карточек */
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .content-layer {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Typography (УВЕЛИЧЕНА в 1.5 раза) --- */
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; font-weight: 600; letter-spacing: -0.02em; }
+        .text-huge { font-size: 5rem; line-height: 1; font-weight: 800; letter-spacing: -0.02em; }
+        /* Central Card Numbers: 3.5rem * 1.5 = 5.25rem */
+        .text-big { font-size: 5.2rem; font-weight: 700; line-height: 1; margin-bottom: 12px;} /* Увеличено */
+        .text-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .text-value { font-size: 1.3rem; font-weight: 600; color: var(--text-primary); } 
+        /* Descriptions: 0.95rem * 1.5 = 1.425rem */
+        .text-desc { font-size: 1.4rem; color: var(--text-secondary); line-height: 1.2; } /* Увеличено */
+
+        /* Neon Colors Classes */
+        .c-lime { color: var(--color-lime); }
+        .c-blue { color: var(--color-blue); }
+        .c-purple { color: var(--color-purple); }
+        .c-white { color: white; }
+        
+        .glow-lime { text-shadow: 0 0 20px rgba(212, 255, 80, 0.3); }
+
+        /* --- Layout Specifics --- */
+
+        /* 1. HEADER */
+        .header {
+            grid-column: span 12;
+            height: auto;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: transparent;
+            border: none;
+            padding: 0 12px;
+            box-shadow: none;
+            margin-bottom: 20px;
+        }
+        .logo-area { display: flex; align-items: center; gap: 16px; }
+        .logo-box { width: 40px; height: 40px; background: linear-gradient(135deg, var(--color-lime), var(--color-blue)); border-radius: 10px; display: grid; place-items: center; font-weight: 800; color: #121212; font-size: 0.8rem;}
+        .company-name { font-size: 1.5rem; font-weight: 700; color: white; letter-spacing: -0.02em; }
+
+        /* 2. MAIN COLUMNS (BALANCE, RAM, MAS) */
+        .col-vertical {
+            grid-column: span 4;
+            min-height: 480px;
+        }
+
+        /* 3. Metric Card Styling */
+        .metric-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px; /* Увеличен зазор */
+            margin-top: 24px;
+            flex-grow: 1;
+        }
+
+        .metric-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-inner);
+            padding: 20px 24px; /* Увеличено */
+            display: flex;
+            flex-direction: row; 
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        
+        /* Vertical Card Numbers: 2.2rem * 1.5 = 3.3rem */
+        .big-number-accent {
+            font-size: 3.3rem; 
+            font-weight: 800;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .metric-text-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; 
+            gap: 2px;
+            text-align: right;
+            flex-grow: 1;
+        }
+        
+        /* FOOTERS */
+        .card-footer {
+            padding-top: 20px;
+            border-top: 1px solid var(--border-glass);
+            font-size: 0.9rem; /* Увеличено */
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Effect Line: 0.9rem * 1.5 = 1.35rem */
+        .card-effect {
+            font-size: 1.35rem; /* Увеличено */
+            font-weight: 500;
+            padding: 15px 0; /* Увеличен отступ */
+            border-top: 1px solid var(--border-glass);
+            margin-top: auto; 
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .status-dot { 
+            width: 6px; 
+            height: 6px; 
+            border-radius: 50%; 
+            background: var(--text-muted); 
+            animation: pulse 1.5s infinite ease-in-out; 
+        }
+        .footer-highlight { color: var(--text-primary); margin-left: 4px; }
+
+        /* 4. Responsible Person Block */
+        .card-header-with-responsible {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .responsible-info-inline {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 12px; 
+            position: relative;
+        }
+        
+        .header-divider-vertical {
+            width: 1px;
+            height: 36px;
+            background: linear-gradient(to bottom, transparent, var(--border-glass-bright), transparent);
+        }
+        
+        .responsible-avatar-small {
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid;
+            flex-shrink: 0;
+        }
+        
+        .responsible-name-inline {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* 5. Infinite Scroll Animation (ИСПРАВЛЕНИЕ: Увеличена высота, чтобы текст не обрезался) */
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .scroll-container {
+            overflow: hidden;
+            white-space: nowrap;
+            height: 35px; /* Увеличено для запаса */
+            margin-top: 10px; /* Увеличен отступ */
+            font-size: 0.9rem; /* Немного увеличен для лучшей читаемости */
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-glass);
+            padding-top: 8px;
+        }
+        .scroll-text {
+            display: inline-block;
+            animation: scroll 15s linear infinite;
+            padding-right: 100%; 
+        }
+        
+        /* 6. CENTRAL CARD (TOTAL) - FULL WIDTH */
+        .card-hero {
+            grid-column: span 12;
+            min-height: 200px;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            padding: 0;
+        }
+        
+        .hero-split {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero-divider {
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--border-glass-bright), transparent);
+            height: 100%;
+        }
+
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .col-vertical { grid-column: span 6; }
+            .card-hero { flex-direction: row; } 
+            .hero-divider { width: 1px; height: 100%; }
+            /* Адаптация для сохранения читаемости на планшетах */
+            .text-big { font-size: 4rem; }
+            .big-number-accent { font-size: 2.5rem; }
+            .text-desc { font-size: 1.1rem; }
+            .card-effect { font-size: 1.1rem; }
+        }
+        
+        @media (max-width: 768px) {
+            .grid-container { display: flex; flex-direction: column; }
+            .col-vertical, .card-hero { min-height: auto; }
+            /* Для мобильных устройств делаем центральную плашку вертикальной */
+            .card-hero { flex-direction: column; }
+            .hero-divider { width: 100%; height: 1px; background: var(--border-glass); }
+            /* В маленьком экране метрики можно сделать вертикальными, чтобы лучше читались */
+            .metric-card { flex-direction: column; align-items: flex-start; }
+            .big-number-accent { margin-bottom: 4px; }
+            .metric-text-group { align-items: flex-start; text-align: left; }
+            
+            /* Адаптация заголовка на мобильных: перенос ответственного */
+            .card-header-with-responsible { flex-direction: column; align-items: flex-start; }
+            .responsible-info-inline { padding-left: 0; margin-top: 8px; }
+            .header-divider-vertical { display: none; }
+            
+            /* Дополнительное уменьшение шрифтов на очень маленьких экранах */
+            .text-big { font-size: 3.5rem; }
+            .big-number-accent { font-size: 2rem; }
+            .text-desc { font-size: 0.95rem; }
+            .card-effect { font-size: 0.95rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="grid-container">
+
+        <!-- 1. Header (Logo & Title) -->
+        <header class="header">
+            <div class="logo-area">
+                <img src="roc_logo.png" alt="ROC" style="width: 160px; height: 160px; object-fit: contain; border-radius: 12px;">
+                <div class="company-name">Analytics Dashboard</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="font-size: 1rem; color: var(--text-secondary); font-weight: 500;">Мастер-смена • 16 Декября 2025</div>
+                <img src="emco_logo.png" alt="EMCO" style="width: 160px; height: 160px; object-fit: contain;">
+            </div>
+        </header>
+
+        <!-- 2. CENTRAL CARD (TOTAL) - FULL WIDTH, NOW SPLIT INTO 3 SECTIONS -->
+        <div class="bento-card card-hero">
+            
+            <!-- 1. КОЛИЧЕСТВО РЕКОМЕНДАЦИЙ (First) -->
+            <div class="hero-split">
+                <div class="text-label">КОЛИЧЕСТВО РЕКОМЕНДАЦИЙ</div>
+                <div class="text-big c-white"><span data-metric="total-recommendations">3 842</span></div>
+                <div class="text-desc">Общее количество рекомендаций</div>
+            </div>
+            
+            <div class="hero-divider"></div>
+            
+            <!-- 2. ОБЪЁМЫ (New Metric) -->
+            <div class="hero-split">
+                <div class="text-label">ОБЪЁМЫ</div>
+                <div class="text-big c-blue"><span data-metric="total-volume">5</span> <span style="font-size: 2.25rem;">тыс. м³</span></div> <!-- Увеличен размер единицы -->
+                <div class="text-desc">Общий объем отработанного материала</div>
+            </div>
+            
+            <div class="hero-divider"></div>
+
+            <!-- 3. ФИНАНСОВЫЙ РЕЗУЛЬТАТ (Last) -->
+            <div class="hero-split">
+                <div class="text-label">ФИНАНСОВЫЙ РЕЗУЛЬТАТ</div>
+                <div class="text-big c-lime glow-lime"><span data-metric="total-financial">1 247</span> <span style="font-size: 2.25rem;">млн ₽</span></div> <!-- Увеличен размер единицы -->
+                <div class="text-desc">Накопленный эффект для предприятия</div>
+            </div>
+        </div>
+
+        <!-- 3. Column: BALANCE -->
+        <div class="bento-card col-vertical">
+            <div class="content-layer">
+                
+                <!-- NEW HEADER LAYOUT -->
+                <div class="card-header-with-responsible">
+                    <div style="display: flex; flex-direction: column;">
+                        <div class="text-label c-lime">BALANCE</div>
+                        <h2 style="font-size: 1.5rem;">Балансировка</h2>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="header-divider-vertical"></div>
+                        <div class="responsible-info-inline">
+                            <div class="responsible-avatar-small" style="border-color: var(--color-lime);">
+                                <img src="photos/max.png" alt="Максим Карнаухов" style="width:100%; height:100%; object-fit: cover;">
+                            </div>
+                            <div class="responsible-name-inline">Mаксим Карнаухов</div>
+                        </div>
+                        <div class="responsible-info-inline" style="margin-left: 12px;">
+                            <div class="responsible-avatar-small" style="border-color: var(--color-lime);">
+                                <img src="photos/kira.png" alt="Кира Прокопьева" style="width:100%; height:100%; object-fit: cover;">
+                            </div>
+                            <div class="responsible-name-inline">Кира Прокопьева</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="height: 1px; width: 100%; background: var(--border-glass); margin-bottom: 12px;"></div>
+                
+                <!-- Metric List -->
+                <div class="metric-list">
+                    <div class="metric-card">
+                        <span class="big-number-accent c-lime" data-metric="balance-recommendations">312</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Рекомендаций внутри звена</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="big-number-accent c-lime" data-metric="balance-deficit">189</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Дефицит / профицит самосвалов</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="big-number-accent c-white" data-metric="balance-timely">94</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Своевременный сход с линии</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="big-number-accent c-white" data-metric="balance-violations">67</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Отреагировано нарушений</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Card Effect -->
+                <div class="card-effect">
+                    Эффект: сэкономлено <span class="c-lime" data-metric="balance-effect">30</span> <span class="c-lime">минут</span>
+                </div>
+                
+                <!-- Card Footer -->
+                <div class="card-footer">
+                    <div class="status-dot" style="background: var(--color-lime);"></div>
+                    Последнее событие: <span class="footer-highlight" data-metric="balance-event">14:20 16 декабря, Оптимизация маршрута №4</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Column: RAM -->
+        <div class="bento-card col-vertical">
+            <div class="content-layer">
+                
+                 <!-- NEW HEADER LAYOUT -->
+                <div class="card-header-with-responsible">
+                    <div style="display: flex; flex-direction: column;">
+                        <div class="text-label c-blue">RAM</div>
+                        <h2 style="font-size: 1.5rem;">Дороги</h2>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="header-divider-vertical"></div>
+                        <div class="responsible-info-inline">
+                            <div class="responsible-avatar-small" style="border-color: var(--color-blue);">
+                                <img src="photos/alex.png" alt="Вязунов Алексей" style="width:100%; height:100%; object-fit: cover;">
+                            </div>
+                            <div class="responsible-name-inline">Вязунов Алексей</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="height: 1px; width: 100%; background: var(--border-glass); margin-bottom: 12px;"></div>
+                
+                <!-- Metric List -->
+                <div class="metric-list">
+                    <div class="metric-card">
+                        <span class="big-number-accent c-blue" data-metric="ram-anomalies">523</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Выявлено дорожных аномалий</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="big-number-accent c-white" data-metric="ram-directives">178</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Директив на улучшение дорожных условий</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="big-number-accent c-white" data-metric="ram-directives-2">89</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Директив на улучшение дорожных условий</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Card Effect -->
+                <div class="card-effect">
+                    Эффект: скорость увеличена на <span class="c-blue" data-metric="ram-effect">3</span> <span class="c-blue">км/ч</span>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer">
+                    <div class="status-dot" style="background: var(--color-blue);"></div>
+                    Последнее событие: <span class="footer-highlight" data-metric="ram-event">14:22 16 декабря, Обнаружена яма на участке 7</span>
+                </div>
+
+                <!-- Infinite Scroll Animation -->
+                <div class="scroll-container">
+                    <div class="scroll-text">
+                        Обнаружена дорожная аномалия • Обнаружена дорожная аномалия • Обнаружена дорожная аномалия • Обнаружена дорожная аномалия • Обнаружена дорожная аномалия •
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Column: MAS -->
+        <div class="bento-card col-vertical">
+            <div class="content-layer">
+                
+                <!-- NEW HEADER LAYOUT -->
+                <div class="card-header-with-responsible">
+                    <div style="display: flex; flex-direction: column;">
+                        <div class="text-label c-purple">MAS</div>
+                        <h2 style="font-size: 1.5rem;">Простои</h2>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="header-divider-vertical"></div>
+                        <div class="responsible-info-inline">
+                            <div class="responsible-avatar-small" style="border-color: var(--color-purple);">
+                                <img src="photos/oleg.png" alt="Рожин Олег" style="width:100%; height:100%; object-fit: cover;">
+                            </div>
+                            <div class="responsible-name-inline">Рожин Олег</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="height: 1px; width: 100%; background: var(--border-glass); margin-bottom: 12px;"></div>
+                
+                <!-- Metric List -->
+                <div class="metric-list">
+                    <div class="metric-card">
+                        <span class="big-number-accent c-purple" data-metric="mas-actions">1 204</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Действий ROC</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="big-number-accent c-white" data-metric="mas-downtime-as">312</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Отреагировано простоев АС</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <span class="big-number-accent c-white" data-metric="mas-downtime-ev">189</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Отреагировано простоев ЭВ</span>
+                        </div>
+                    </div>
+                    <div class="metric-card" style="border-color: rgba(255, 75, 75, 0.3);">
+                        <span class="big-number-accent c-red" style="color: var(--color-red)" data-metric="mas-errors">43</span>
+                        <div class="metric-text-group">
+                            <span class="text-desc">Выявленных ошибок в работе ИИ-агентов</span>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- NEW: Card Effect -->
+                <div class="card-effect">
+                    Эффект: простои сокращены на <span class="c-purple" data-metric="mas-effect">60</span> <span class="c-purple">минут</span>
+                </div>
+
+                <!-- Card Footer -->
+                <div class="card-footer">
+                    <div class="status-dot" style="background: var(--color-purple);"></div>
+                    Последнее событие: <span class="footer-highlight" data-metric="mas-event">14:25 16 декабря, Перераспределение агента 12</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Индикатор загрузки -->
+    <div id="loading-indicator" style="display: none; position: fixed; top: 20px; right: 20px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 12px; padding: 12px 20px; z-index: 1000; backdrop-filter: blur(20px);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="status-dot" style="background: var(--color-blue); animation: pulse 1s infinite;"></div>
+            <span style="color: var(--text-primary); font-size: 0.9rem;">Обновление данных...</span>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // КОНФИГУРАЦИЯ
+        // ============================================
+        const CONFIG = {
+            // ID Google Таблицы
+            SHEET_ID: '1JigB9dS_CEaDfdYbTH_6XJKXbnkuHuv8v5swGlg6bWI',
+            
+            // Интервал обновления в миллисекундах (15 секунд)
+            UPDATE_INTERVAL: 15000,
+            
+            // Маппинг метрик на листы и диапазоны таблицы
+            METRICS_MAPPING: {
+                // Общие метрики (лист "Общие")
+                'total-recommendations': { sheet: 'Общие', range: 'B2', type: 'number' },
+                'total-volume': { sheet: 'Общие', range: 'B3', type: 'number' },
+                'total-financial': { sheet: 'Общие', range: 'B4', type: 'number' },
+                
+                // BALANCE метрики (лист "BALANCE")
+                'balance-recommendations': { sheet: 'BALANCE', range: 'B2', type: 'number' },
+                'balance-deficit': { sheet: 'BALANCE', range: 'B3', type: 'number' },
+                'balance-timely': { sheet: 'BALANCE', range: 'B4', type: 'number' },
+                'balance-violations': { sheet: 'BALANCE', range: 'B5', type: 'number' },
+                'balance-effect': { sheet: 'BALANCE', range: 'B6', type: 'number' },
+                'balance-event': { sheet: 'BALANCE', range: 'B7', type: 'text' },
+                
+                // RAM метрики (лист "RAM")
+                'ram-anomalies': { sheet: 'RAM', range: 'B2', type: 'number' },
+                'ram-directives': { sheet: 'RAM', range: 'B3', type: 'number' },
+                'ram-directives-2': { sheet: 'RAM', range: 'B4', type: 'number' },
+                'ram-effect': { sheet: 'RAM', range: 'B5', type: 'number' },
+                'ram-event': { sheet: 'RAM', range: 'B6', type: 'text' },
+                
+                // MAS метрики (лист "MAS")
+                // Строка 4, столбец N: Выявлено нарушений простоев ГТО (Итого)
+                'mas-actions': { sheet: 'MAS', range: 'N4', type: 'number' },
+                // Строка 5, столбец N: ЭВ (Итого)
+                'mas-downtime-ev': { sheet: 'MAS', range: 'N5', type: 'number' },
+                // Строка 6, столбец N: АС (Итого)
+                'mas-downtime-as': { sheet: 'MAS', range: 'N6', type: 'number' },
+                // Строка 7, столбец N: Выявлено нарушений работы ИИ-агентов (Итого)
+                'mas-errors': { sheet: 'MAS', range: 'N7', type: 'number' },
+                // Временные значения - можно будет настроить позже
+                'mas-effect': { sheet: 'MAS', range: 'B6', type: 'number' },
+                'mas-event': { sheet: 'MAS', range: 'B7', type: 'text' }
+            }
+        };
+
+        // ============================================
+        // GOOGLE SHEETS API
+        // ============================================
+        
+        /**
+         * Получает данные из Google Таблицы через CSV endpoint
+         * @param {string} sheetName - Название листа
+         * @param {string} range - Диапазон ячеек (например, 'A1:B10')
+         * @returns {Promise<Array>} Массив строк данных
+         */
+        async function fetchSheetData(sheetName, range) {
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&range=${range}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                return parseCSV(csvText);
+            } catch (error) {
+                // Проверка на CORS ошибку
+                if (error.message.includes('CORS') || error.message.includes('Failed to fetch') || 
+                    (error.name === 'TypeError' && error.message.includes('fetch'))) {
+                    const isFileProtocol = window.location.protocol === 'file:';
+                    if (isFileProtocol) {
+                        const corsError = new Error('CORS_ERROR');
+                        corsError.isCorsError = true;
+                        corsError.message = 'Файл открыт напрямую из файловой системы. Запустите через локальный веб-сервер.';
+                        throw corsError;
+                    }
+                }
+                console.error(`Ошибка при получении данных из листа "${sheetName}":`, error);
+                throw error;
+            }
+        }
+
+        /**
+         * Преобразует буквенное обозначение столбца в индекс (A=0, B=1, ..., Z=25, AA=26, ...)
+         * @param {string} col - Буквенное обозначение столбца (например, 'A', 'N', 'AA')
+         * @returns {number} Индекс столбца (начиная с 0)
+         */
+        function columnToIndex(col) {
+            let index = 0;
+            for (let i = 0; i < col.length; i++) {
+                index = index * 26 + (col.charCodeAt(i) - 'A'.charCodeAt(0) + 1);
+            }
+            return index - 1;
+        }
+
+        /**
+         * Получает значение одной ячейки из Google Таблицы
+         * @param {string} sheetName - Название листа
+         * @param {string} cell - Адрес ячейки (например, 'B2', 'N6')
+         * @returns {Promise<string|number>} Значение ячейки
+         */
+        async function fetchCellValue(sheetName, cell) {
+            try {
+                // Парсим адрес ячейки (например, 'N6' -> колонка='N', строка='6')
+                const match = cell.match(/^([A-Z]+)(\d+)$/);
+                if (!match) {
+                    console.error(`Неверный формат адреса ячейки: ${cell}`);
+                    return null;
+                }
+                
+                const colLetter = match[1];
+                const colIndex = columnToIndex(colLetter);
+                const rowNum = parseInt(match[2], 10);
+                
+                // Пробуем два подхода:
+                // 1. Сначала запрашиваем диапазон A{row}:{cell} для правильной структуры
+                // 2. Если не получается, запрашиваем напрямую ячейку
+                
+                let data = null;
+                let range = `${cell}:${cell}`; // Запрашиваем одну ячейку напрямую
+                
+                try {
+                    // Пробуем запросить диапазон от A до нужной ячейки
+                    const rangeStart = `A${rowNum}`;
+                    const rangeEnd = cell;
+                    range = `${rangeStart}:${rangeEnd}`;
+                    data = await fetchSheetData(sheetName, range);
+                } catch (error) {
+                    console.warn(`[DEBUG] Не удалось получить диапазон ${range}, пробуем напрямую ячейку ${cell}`);
+                    // Если не получилось, пробуем запросить напрямую ячейку
+                    range = `${cell}:${cell}`;
+                    data = await fetchSheetData(sheetName, range);
+                }
+                
+                // Отладочное логирование
+                console.log(`[DEBUG] Запрос ячейки ${cell} (лист: ${sheetName}, диапазон: ${range})`);
+                console.log(`[DEBUG] Индекс столбца ${colLetter}: ${colIndex}`);
+                console.log(`[DEBUG] Полученные данные:`, data);
+                
+                if (data && data.length > 0) {
+                    const row = data[0];
+                    console.log(`[DEBUG] Строка данных:`, row);
+                    console.log(`[DEBUG] Длина строки: ${row.length}, нужен индекс: ${colIndex}`);
+                    
+                    // Если запрашивали одну ячейку напрямую, значение будет в первой позиции
+                    let value = null;
+                    if (range.includes(':') && range.split(':')[0] !== range.split(':')[1]) {
+                        // Диапазон - используем индекс столбца
+                        if (row.length > colIndex) {
+                            value = row[colIndex];
+                        }
+                    } else {
+                        // Одна ячейка - значение в первой позиции
+                        value = row[0];
+                    }
+                    
+                    console.log(`[DEBUG] Значение из ячейки ${cell}:`, value);
+                    
+                    // Проверяем на пустую строку
+                    if (value !== undefined && value !== null && value !== '') {
+                        return value;
+                    } else {
+                        console.warn(`[DEBUG] Значение пустое или undefined`);
+                    }
+                } else {
+                    console.warn(`[DEBUG] Данные пусты или отсутствуют`);
+                }
+                return null;
+            } catch (error) {
+                console.error(`Ошибка при получении значения ячейки ${cell}:`, error);
+                return null;
+            }
+        }
+
+        /**
+         * Парсит CSV текст в массив массивов
+         * @param {string} csvText - CSV текст
+         * @returns {Array<Array>} Массив строк
+         */
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n').filter(line => line.trim().length > 0);
+            const parsed = lines.map(line => {
+                const result = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        result.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                result.push(current.trim());
+                return result;
+            });
+            
+            // Отладочное логирование
+            console.log(`[DEBUG parseCSV] Исходный CSV текст:`, csvText);
+            console.log(`[DEBUG parseCSV] Распарсенные данные:`, parsed);
+            
+            return parsed;
+        }
+
+        // ============================================
+        // ОБРАБОТКА ДАННЫХ
+        // ============================================
+        
+        /**
+         * Форматирует число с разделителями тысяч
+         * @param {number|string} value - Число для форматирования
+         * @returns {string} Отформатированное число
+         */
+        function formatNumber(value) {
+            if (value === null || value === undefined || value === '') return '0';
+            const num = typeof value === 'string' ? parseFloat(value.replace(/\s/g, '')) : value;
+            if (isNaN(num)) return '0';
+            return Math.round(num).toLocaleString('ru-RU');
+        }
+
+        /**
+         * Преобразует значение в число
+         * @param {string|number} value - Значение
+         * @returns {number} Число
+         */
+        function parseNumber(value) {
+            if (typeof value === 'number') return value;
+            if (typeof value === 'string') {
+                return parseFloat(value.replace(/\s/g, '').replace(',', '.')) || 0;
+            }
+            return 0;
+        }
+
+        /**
+         * Загружает все метрики из таблицы
+         * @returns {Promise<Object>} Объект с метриками
+         */
+        async function loadAllMetrics() {
+            const metrics = {};
+            const promises = [];
+            
+            for (const [metricId, config] of Object.entries(CONFIG.METRICS_MAPPING)) {
+                promises.push(
+                    fetchCellValue(config.sheet, config.range)
+                        .then(value => {
+                            if (config.type === 'number') {
+                                metrics[metricId] = parseNumber(value);
+                            } else {
+                                metrics[metricId] = value || '';
+                            }
+                        })
+                        .catch(error => {
+                            console.error(`Ошибка загрузки метрики ${metricId}:`, error);
+                            metrics[metricId] = config.type === 'number' ? 0 : '';
+                        })
+                );
+            }
+            
+            await Promise.all(promises);
+            return metrics;
+        }
+
+        // ============================================
+        // ОБНОВЛЕНИЕ DOM
+        // ============================================
+        
+        /**
+         * Обновляет значение элемента с анимацией
+         * @param {HTMLElement} element - Элемент для обновления
+         * @param {string|number} newValue - Новое значение
+         * @param {boolean} animate - Анимировать ли изменение
+         */
+        function updateElementValue(element, newValue, animate = true) {
+            if (!element) return;
+            
+            const oldValue = element.textContent.trim();
+            const formattedValue = typeof newValue === 'number' ? formatNumber(newValue) : newValue;
+            
+            if (oldValue === formattedValue) return;
+            
+            if (animate && typeof newValue === 'number') {
+                animateNumberChange(element, parseNumber(oldValue), newValue);
+            } else {
+                element.textContent = formattedValue;
+            }
+        }
+
+        /**
+         * Анимирует изменение числа
+         * @param {HTMLElement} element - Элемент
+         * @param {number} from - Начальное значение
+         * @param {number} to - Конечное значение
+         */
+        function animateNumberChange(element, from, to) {
+            const duration = 500; // миллисекунды
+            const startTime = Date.now();
+            const difference = to - from;
+            
+            function update() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing функция для плавности
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(from + difference * easeOut);
+                
+                element.textContent = formatNumber(current);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = formatNumber(to);
+                }
+            }
+            
+            update();
+        }
+
+        /**
+         * Обновляет все метрики на странице
+         * @param {Object} metrics - Объект с метриками
+         */
+        function updateDashboard(metrics) {
+            // Общие метрики
+            updateElementValue(document.querySelector('[data-metric="total-recommendations"]'), metrics['total-recommendations']);
+            updateElementValue(document.querySelector('[data-metric="total-volume"]'), metrics['total-volume']);
+            updateElementValue(document.querySelector('[data-metric="total-financial"]'), metrics['total-financial']);
+            
+            // BALANCE
+            updateElementValue(document.querySelector('[data-metric="balance-recommendations"]'), metrics['balance-recommendations']);
+            updateElementValue(document.querySelector('[data-metric="balance-deficit"]'), metrics['balance-deficit']);
+            updateElementValue(document.querySelector('[data-metric="balance-timely"]'), metrics['balance-timely']);
+            updateElementValue(document.querySelector('[data-metric="balance-violations"]'), metrics['balance-violations']);
+            updateElementValue(document.querySelector('[data-metric="balance-effect"]'), metrics['balance-effect']);
+            updateElementValue(document.querySelector('[data-metric="balance-event"]'), metrics['balance-event'], false);
+            
+            // RAM
+            updateElementValue(document.querySelector('[data-metric="ram-anomalies"]'), metrics['ram-anomalies']);
+            updateElementValue(document.querySelector('[data-metric="ram-directives"]'), metrics['ram-directives']);
+            updateElementValue(document.querySelector('[data-metric="ram-directives-2"]'), metrics['ram-directives-2']);
+            updateElementValue(document.querySelector('[data-metric="ram-effect"]'), metrics['ram-effect']);
+            updateElementValue(document.querySelector('[data-metric="ram-event"]'), metrics['ram-event'], false);
+            
+            // MAS
+            updateElementValue(document.querySelector('[data-metric="mas-actions"]'), metrics['mas-actions']);
+            updateElementValue(document.querySelector('[data-metric="mas-downtime-as"]'), metrics['mas-downtime-as']);
+            updateElementValue(document.querySelector('[data-metric="mas-downtime-ev"]'), metrics['mas-downtime-ev']);
+            updateElementValue(document.querySelector('[data-metric="mas-errors"]'), metrics['mas-errors']);
+            updateElementValue(document.querySelector('[data-metric="mas-effect"]'), metrics['mas-effect']);
+            updateElementValue(document.querySelector('[data-metric="mas-event"]'), metrics['mas-event'], false);
+        }
+
+        // ============================================
+        // ИНДИКАТОР ЗАГРУЗКИ
+        // ============================================
+        
+        function showLoading() {
+            const indicator = document.getElementById('loading-indicator');
+            if (indicator) indicator.style.display = 'block';
+        }
+
+        function hideLoading() {
+            const indicator = document.getElementById('loading-indicator');
+            if (indicator) indicator.style.display = 'none';
+        }
+
+        // ============================================
+        // АВТОМАТИЧЕСКОЕ ОБНОВЛЕНИЕ
+        // ============================================
+        
+        let updateInterval = null;
+        let isUpdating = false;
+
+        /**
+         * Выполняет обновление данных
+         */
+        async function performUpdate() {
+            if (isUpdating) return;
+            
+            isUpdating = true;
+            showLoading();
+            
+            try {
+                const metrics = await loadAllMetrics();
+                updateDashboard(metrics);
+            } catch (error) {
+                console.error('Ошибка при обновлении данных:', error);
+                
+                // Специальная обработка CORS ошибки
+                if (error.isCorsError || (error.message && error.message.includes('CORS'))) {
+                    const isFileProtocol = window.location.protocol === 'file:';
+                    if (isFileProtocol) {
+                        alert('⚠️ ОШИБКА CORS\n\n' +
+                              'Файл открыт напрямую из файловой системы.\n\n' +
+                              'РЕШЕНИЕ: Запустите через локальный веб-сервер:\n\n' +
+                              '1. Откройте терминал в папке с файлом\n' +
+                              '2. Python 3: python -m http.server 8000\n' +
+                              '3. Python 2: python -m SimpleHTTPServer 8000\n' +
+                              '4. Node.js: npx http-server -p 8000\n' +
+                              '5. Откройте http://localhost:8000/ROC_Analytics_Dashboard%20v8.html\n\n' +
+                              'Или используйте расширение Live Server в VS Code.');
+                        return;
+                    }
+                }
+            } finally {
+                hideLoading();
+                isUpdating = false;
+            }
+        }
+
+        /**
+         * Запускает автоматическое обновление
+         */
+        function startAutoUpdate() {
+            // Первое обновление сразу
+            performUpdate();
+            
+            // Затем обновление по интервалу
+            updateInterval = setInterval(performUpdate, CONFIG.UPDATE_INTERVAL);
+        }
+
+        /**
+         * Останавливает автоматическое обновление
+         */
+        function stopAutoUpdate() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+                updateInterval = null;
+            }
+        }
+
+        // ============================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // ============================================
+        
+        // Запуск при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Проверка наличия ID таблицы
+            if (CONFIG.SHEET_ID === 'YOUR_SHEET_ID_HERE') {
+                console.warn('⚠️ Необходимо указать ID Google Таблицы в конфигурации!');
+                alert('⚠️ Необходимо указать ID Google Таблицы в конфигурации!\n\nОткройте файл и замените YOUR_SHEET_ID_HERE на ID вашей таблицы.');
+                return;
+            }
+            
+            startAutoUpdate();
+        });
+
+        // Остановка при выгрузке страницы
+        window.addEventListener('beforeunload', () => {
+            stopAutoUpdate();
+        });
+    </script>
+
+</body>
+</html>
