@@ -239,6 +239,17 @@
             position: relative;
         }
         
+        .responsible-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+        
+        .responsible-group .responsible-info-inline {
+            padding-left: 0;
+        }
+        
         .header-divider-vertical {
             width: 1px;
             height: 36px;
@@ -402,7 +413,7 @@
                         <div class="text-label c-lime">BALANCE</div>
                         <h2 style="font-size: 1.5rem;">Балансировка</h2>
                     </div>
-                    <div style="display: flex; align-items: center;">
+                    <div class="responsible-group">
                         <div class="header-divider-vertical"></div>
                         <div class="responsible-info-inline">
                             <div class="responsible-avatar-small" style="border-color: var(--color-lime);">
@@ -410,7 +421,7 @@
                             </div>
                             <div class="responsible-name-inline">Mаксим Карнаухов</div>
                         </div>
-                        <div class="responsible-info-inline" style="margin-left: 12px;">
+                        <div class="responsible-info-inline">
                             <div class="responsible-avatar-small" style="border-color: var(--color-lime);">
                                 <img src="photos/kira.png" alt="Кира Прокопьева" style="width:100%; height:100%; object-fit: cover;">
                             </div>

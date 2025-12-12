@@ -239,6 +239,17 @@
             position: relative;
         }
         
+        .responsible-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+        }
+        
+        .responsible-group .responsible-info-inline {
+            padding-left: 0;
+        }
+        
         .header-divider-vertical {
             width: 1px;
             height: 36px;
@@ -402,7 +413,7 @@
                         <div class="text-label c-lime">BALANCE</div>
                         <h2 style="font-size: 1.5rem;">Балансировка</h2>
                     </div>
-                    <div style="display: flex; align-items: center;">
+                    <div class="responsible-group">
                         <div class="header-divider-vertical"></div>
                         <div class="responsible-info-inline">
                             <div class="responsible-avatar-small" style="border-color: var(--color-lime);">
@@ -410,7 +421,7 @@
                             </div>
                             <div class="responsible-name-inline">Mаксим Карнаухов</div>
                         </div>
-                        <div class="responsible-info-inline" style="margin-left: 12px;">
+                        <div class="responsible-info-inline">
                             <div class="responsible-avatar-small" style="border-color: var(--color-lime);">
                                 <img src="photos/kira.png" alt="Кира Прокопьева" style="width:100%; height:100%; object-fit: cover;">
                             </div>
@@ -662,13 +673,20 @@
         async function fetchSheetData(sheetName, range) {
             try {
                 const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&range=${range}`;
+                console.log(`[DEBUG] Запрос к Google Sheets: ${url}`);
                 const response = await fetch(url);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    if (response.status === 403) {
+                        throw new Error(`Доступ запрещен (403). Убедитесь, что таблица опубликована для просмотра. URL: ${url}`);
+                    } else if (response.status === 404) {
+                        throw new Error(`Таблица не найдена (404). Проверьте ID таблицы: ${CONFIG.SHEET_ID}`);
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}, URL: ${url}`);
                 }
                 
                 const csvText = await response.text();
+                console.log(`[DEBUG] Ответ от Google Sheets (лист "${sheetName}", диапазон "${range}"):`, csvText.substring(0, 200));
                 return parseCSV(csvText);
             } catch (error) {
                 // Проверка на CORS ошибку
@@ -682,7 +700,7 @@
                         throw corsError;
                     }
                 }
-                console.error(`Ошибка при получении данных из листа "${sheetName}":`, error);
+                console.error(`[ERROR] Ошибка при получении данных из листа "${sheetName}" (диапазон "${range}"):`, error);
                 throw error;
             }
         }
@@ -836,10 +854,21 @@
          * @returns {number} Число
          */
         function parseNumber(value) {
+            if (value === null || value === undefined || value === '') {
+                console.warn('[WARNING] parseNumber получил пустое значение');
+                return 0;
+            }
             if (typeof value === 'number') return value;
             if (typeof value === 'string') {
-                return parseFloat(value.replace(/\s/g, '').replace(',', '.')) || 0;
+                const cleaned = value.replace(/\s/g, '').replace(',', '.');
+                const parsed = parseFloat(cleaned);
+                if (isNaN(parsed)) {
+                    console.warn(`[WARNING] parseNumber не смог распарсить значение: "${value}"`);
+                    return 0;
+                }
+                return parsed;
             }
+            console.warn(`[WARNING] parseNumber получил неожиданный тип: ${typeof value}, значение:`, value);
             return 0;
         }
 
@@ -855,20 +884,26 @@
                 promises.push(
                     fetchCellValue(config.sheet, config.range)
                         .then(value => {
+                            console.log(`[DEBUG] Метрика ${metricId} (${config.sheet}!${config.range}):`, value);
                             if (config.type === 'number') {
-                                metrics[metricId] = parseNumber(value);
+                                const parsed = parseNumber(value);
+                                if (parsed === 0 && (value === null || value === '' || value === undefined)) {
+                                    console.warn(`[WARNING] Метрика ${metricId} вернула пустое значение из ${config.sheet}!${config.range}`);
+                                }
+                                metrics[metricId] = parsed;
                             } else {
                                 metrics[metricId] = value || '';
                             }
                         })
                         .catch(error => {
-                            console.error(`Ошибка загрузки метрики ${metricId}:`, error);
+                            console.error(`[ERROR] Ошибка загрузки метрики ${metricId} (${config.sheet}!${config.range}):`, error);
                             metrics[metricId] = config.type === 'number' ? 0 : '';
                         })
                 );
             }
             
             await Promise.all(promises);
+            console.log('[DEBUG] Все загруженные метрики:', metrics);
             return metrics;
         }
 
@@ -993,10 +1028,14 @@
             showLoading();
             
             try {
+                console.log('[DEBUG] Начало загрузки данных из Google Таблицы...');
+                console.log('[DEBUG] ID таблицы:', CONFIG.SHEET_ID);
                 const metrics = await loadAllMetrics();
+                console.log('[DEBUG] Данные загружены, обновление дашборда...');
                 updateDashboard(metrics);
+                console.log('[DEBUG] Дашборд обновлен');
             } catch (error) {
-                console.error('Ошибка при обновлении данных:', error);
+                console.error('[ERROR] Ошибка при обновлении данных:', error);
                 
                 // Специальная обработка CORS ошибки
                 if (error.isCorsError || (error.message && error.message.includes('CORS'))) {
