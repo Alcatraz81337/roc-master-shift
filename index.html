@@ -557,21 +557,21 @@
         
         /* Специальный медиа-запрос для точного FullHD (1920px) и выше до 2559px */
         @media screen and (min-width: 1920px) and (max-width: 2559px) {
-            /* Пропорциональное масштабирование для FullHD (коэффициент 0.75 от 2560×1440) */
+            /* Точное пропорциональное масштабирование для FullHD (коэффициент 0.75 от эталона 2560×1440) */
             .text-huge { font-size: 3.75rem !important; }
             .text-big { font-size: 3.9rem !important; }
             .text-label { font-size: 0.56rem !important; }
-            .text-value { font-size: 1rem !important; }
+            .text-value { font-size: 0.98rem !important; }
             .text-desc { font-size: 1.05rem !important; }
-            .big-number-accent { font-size: 2.5rem !important; }
-            .card-effect { font-size: 1rem !important; }
-            .company-name { font-size: 1.1rem !important; }
-            .responsible-name-inline { font-size: 0.7rem !important; }
+            .big-number-accent { font-size: 2.48rem !important; }
+            .card-effect { font-size: 1.01rem !important; }
+            .company-name { font-size: 1.13rem !important; }
+            .responsible-name-inline { font-size: 0.71rem !important; }
             .card-footer { font-size: 0.68rem !important; }
             .scroll-container { font-size: 0.68rem !important; }
-            h2 { font-size: 1.1rem !important; }
+            h2 { font-size: 1.13rem !important; }
             
-            .hero-split span[style*="font-size: 2.25rem"] { font-size: 1.7rem !important; }
+            .hero-split span[style*="font-size: 2.25rem"] { font-size: 1.69rem !important; }
             .header > div > div { font-size: 0.75rem !important; }
             
             .header img[src*="roc_logo.png"],
@@ -595,7 +595,7 @@
             .metric-card { padding: 15px 18px !important; }
             .metric-list { gap: 12px !important; margin-top: 18px !important; }
             .hero-split { padding: 30px !important; }
-            .header { padding: 0 8px !important; margin-bottom: 15px !important; }
+            .header { padding: 0 9px !important; margin-bottom: 15px !important; }
             .logo-area { gap: 12px !important; }
             .grid-container { 
                 max-width: 100% !important; 
@@ -618,10 +618,17 @@
             .card-effect { padding: 11px 0 !important; }
             .card-footer { padding-top: 15px !important; gap: 6px !important; }
             .scroll-container { margin-top: 8px !important; padding-top: 8px !important; }
-            .metric-text-group { gap: 4px !important; }
-            .notification-card { font-size: 0.68rem !important; padding: 8px 12px !important; }
-            .notification-container { margin-top: 12px !important; min-height: 40px !important; }
+            .metric-card { gap: 12px !important; }
+            .metric-text-group { gap: 1.5px !important; }
+            .notification-card { font-size: 0.68rem !important; padding: 9px 12px !important; }
+            .notification-container { margin-top: 12px !important; min-height: 37.5px !important; }
             .header > div:last-child { gap: 12px !important; }
+            .logo-box {
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 0.6rem !important;
+                border-radius: 7.5px !important;
+            }
             .header-divider-vertical { height: 27px !important; }
             .bento-card { border-radius: 18px !important; }
             .metric-card { border-radius: 9px !important; }
