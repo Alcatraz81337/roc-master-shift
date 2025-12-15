@@ -223,6 +223,51 @@
         }
         .footer-highlight { color: var(--text-primary); margin-left: 4px; }
 
+        /* Notification Card Styles */
+        .notification-container {
+            margin-top: 16px;
+            min-height: 50px;
+            position: relative;
+        }
+
+        .notification-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid;
+            border-radius: var(--radius-inner);
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .notification-card.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification-card.fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        @keyframes pulse-border {
+            0%, 100% {
+                box-shadow: 0 0 0 0 currentColor;
+                border-color: currentColor;
+            }
+            50% {
+                box-shadow: 0 0 20px 4px currentColor;
+                border-color: currentColor;
+            }
+        }
+
+        .notification-card.pulsing {
+            animation: pulse-border 2s infinite ease-in-out;
+        }
+
         /* 4. Responsible Person Block */
         .card-header-with-responsible {
             display: flex;
@@ -356,6 +401,50 @@
             .card-effect { font-size: 0.95rem; }
         }
 
+        /* Адаптация для экранов 1920×1080: уменьшение всех размеров в 2 раза */
+        @media (min-width: 1920px) and (max-width: 2559px) {
+            /* Уменьшение всех размеров текста и цифр в 2 раза */
+            .text-huge { font-size: 2.5rem; }
+            .text-big { font-size: 2.6rem; }
+            .text-label { font-size: 0.375rem; }
+            .text-value { font-size: 0.65rem; }
+            .text-desc { font-size: 0.7rem; }
+            .big-number-accent { font-size: 1.65rem; }
+            .card-effect { font-size: 0.675rem; }
+            .company-name { font-size: 0.75rem; }
+            .responsible-name-inline { font-size: 0.475rem; }
+            .card-footer { font-size: 0.45rem; }
+            .scroll-container { font-size: 0.45rem; }
+            h2 { font-size: 0.75rem; }
+            
+            /* Уменьшение размеров единиц измерения в центральной карточке */
+            .hero-split span[style*="font-size: 2.25rem"] { font-size: 1.125rem !important; }
+            
+            /* Уменьшение размера текста в header */
+            .header > div > div { font-size: 0.5rem; }
+            
+            /* Уменьшение отступов, padding, margin, gap в 2 раза */
+            body { padding: 12px; }
+            .bento-card { padding: 12px; }
+            .metric-card { padding: 10px 12px; }
+            .metric-list { gap: 8px; margin-top: 12px; }
+            .hero-split { padding: 20px; }
+            .header { padding: 0 6px; margin-bottom: 10px; }
+            .logo-area { gap: 8px; }
+            .responsible-info-inline { gap: 6px; }
+            .responsible-group { gap: 6px; }
+            .card-header-with-responsible { margin-bottom: 4px; }
+            .text-big { margin-bottom: 6px; }
+            .text-label { margin-bottom: 4px; }
+            .card-effect { padding: 7.5px 0; }
+            .card-footer { padding-top: 10px; gap: 4px; }
+            .scroll-container { margin-top: 5px; padding-top: 4px; }
+            .grid-container { gap: 8px; }
+            .metric-text-group { gap: 1px; }
+            .notification-card { font-size: 0.45rem; padding: 6px 8px; }
+            .notification-container { margin-top: 8px; min-height: 25px; }
+        }
+
     </style>
 </head>
 <body>
@@ -369,7 +458,7 @@
                 <div class="company-name">Analytics Dashboard</div>
             </div>
             <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="font-size: 1rem; color: var(--text-secondary); font-weight: 500;">Мастер-смена • 16 Декября 2025</div>
+                <div style="font-size: 1rem; color: var(--text-secondary); font-weight: 500;">Мастер-смена • 16 Декабря 2025</div>
                 <img src="emco_logo.png" alt="EMCO" style="width: 160px; height: 160px; object-fit: contain;">
             </div>
         </header>
@@ -470,6 +559,11 @@
                     <div class="status-dot" style="background: var(--color-lime);"></div>
                     Последнее событие: <span class="footer-highlight" data-metric="balance-event">14:20 16 декабря, Оптимизация маршрута №4</span>
                 </div>
+
+                <!-- Notification Card Container -->
+                <div class="notification-container" id="balance-notification">
+                    <div class="notification-card pulsing" style="border-color: var(--color-lime); color: var(--color-lime);"></div>
+                </div>
             </div>
         </div>
 
@@ -489,7 +583,7 @@
                             <div class="responsible-avatar-small" style="border-color: var(--color-blue);">
                                 <img src="photos/alex.png" alt="Вязунов Алексей" style="width:100%; height:100%; object-fit: cover;">
                             </div>
-                            <div class="responsible-name-inline">Вязунов Алексей</div>
+                            <div class="responsible-name-inline">Алексей Вязунов</div>
                         </div>
                     </div>
                 </div>
@@ -535,11 +629,9 @@
                     Последнее событие: <span class="footer-highlight" data-metric="ram-event">14:22 16 декабря, Обнаружена яма на участке 7</span>
                 </div>
 
-                <!-- Infinite Scroll Animation -->
-                <div class="scroll-container">
-                    <div class="scroll-text">
-                        Обнаружена дорожная аномалия • Обнаружена дорожная аномалия • Обнаружена дорожная аномалия • Обнаружена дорожная аномалия • Обнаружена дорожная аномалия •
-                    </div>
+                <!-- Notification Card Container -->
+                <div class="notification-container" id="ram-notification">
+                    <div class="notification-card pulsing" style="border-color: var(--color-blue); color: var(--color-blue);"></div>
                 </div>
             </div>
         </div>
@@ -560,7 +652,7 @@
                             <div class="responsible-avatar-small" style="border-color: var(--color-purple);">
                                 <img src="photos/oleg.png" alt="Рожин Олег" style="width:100%; height:100%; object-fit: cover;">
                             </div>
-                            <div class="responsible-name-inline">Рожин Олег</div>
+                            <div class="responsible-name-inline">Олег Рожин</div>
                         </div>
                     </div>
                 </div>
@@ -604,6 +696,11 @@
                 <div class="card-footer">
                     <div class="status-dot" style="background: var(--color-purple);"></div>
                     Последнее событие: <span class="footer-highlight" data-metric="mas-event">14:25 16 декабря, Перераспределение агента 12</span>
+                </div>
+
+                <!-- Notification Card Container -->
+                <div class="notification-container" id="mas-notification">
+                    <div class="notification-card pulsing" style="border-color: var(--color-purple); color: var(--color-purple);"></div>
                 </div>
             </div>
         </div>
@@ -1140,6 +1237,155 @@
         }
 
         // ============================================
+        // NOTIFICATION CARDS ROTATION
+        // ============================================
+        
+        /**
+         * Конфигурация сообщений для карточек уведомлений
+         * Структура позволяет легко расширить до 20 сообщений
+         */
+        const NOTIFICATION_MESSAGES = {
+            balance: [
+                'Выявлен дефицит самосвалов в звене',
+                'Обнаружено неисполнение директивы о перенаправлении',
+                'Выявлен профицит самосвалов в звене'
+                // Место для расширения до 20 сообщений
+            ],
+            ram: [
+                'Обнаружена дорожная аномалия',
+                'Определён проблемный участок',
+                'Выявлен прост вспомогательной техники'
+                // Место для расширения до 20 сообщений
+            ],
+            mas: [
+                'Замечен простой АС. Проводится мониторинг',
+                'Обнаружен сбой',
+                'Замечен простой ЭВ. Проводится мониторинг'
+                // Место для расширения до 20 сообщений
+            ]
+        };
+
+        /**
+         * Класс для ротации карточек уведомлений
+         */
+        class NotificationRotator {
+            constructor(containerId, messages, accentColor) {
+                this.container = document.getElementById(containerId);
+                this.messages = messages;
+                this.accentColor = accentColor;
+                this.currentIndex = 0;
+                this.rotationTimer = null;
+                this.card = null;
+                
+                if (!this.container) {
+                    console.error(`[ERROR] Контейнер ${containerId} не найден`);
+                    return;
+                }
+                
+                this.card = this.container.querySelector('.notification-card');
+                if (!this.card) {
+                    console.error(`[ERROR] Карточка в контейнере ${containerId} не найдена`);
+                    return;
+                }
+            }
+
+            /**
+             * Возвращает случайный интервал в миллисекундах (30-45 секунд)
+             * @returns {number} Интервал в миллисекундах
+             */
+            getRandomInterval() {
+                const min = 30000; // 30 секунд
+                const max = 45000; // 45 секунд
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            /**
+             * Обновляет текст карточки с анимацией
+             * @param {string} message - Текст сообщения
+             */
+            updateCard(message) {
+                if (!this.card) return;
+                
+                // Анимация исчезновения
+                this.card.classList.remove('fade-in');
+                this.card.classList.add('fade-out');
+                
+                setTimeout(() => {
+                    // Обновление текста
+                    this.card.textContent = message;
+                    
+                    // Анимация появления
+                    this.card.classList.remove('fade-out');
+                    this.card.classList.add('fade-in');
+                }, 500); // Время анимации fade-out
+            }
+
+            /**
+             * Показывает следующее сообщение
+             */
+            showNext() {
+                if (!this.messages || this.messages.length === 0) {
+                    console.warn('[WARNING] Нет сообщений для отображения');
+                    return;
+                }
+                
+                const message = this.messages[this.currentIndex];
+                this.updateCard(message);
+                
+                // Переход к следующему сообщению (циклически)
+                this.currentIndex = (this.currentIndex + 1) % this.messages.length;
+            }
+
+            /**
+             * Запускает ротацию карточек
+             */
+            start() {
+                if (!this.container || !this.card) return;
+                
+                // Показываем первое сообщение сразу
+                if (this.messages && this.messages.length > 0) {
+                    this.currentIndex = Math.floor(Math.random() * this.messages.length);
+                    const firstMessage = this.messages[this.currentIndex];
+                    
+                    // Устанавливаем текст и сразу показываем карточку
+                    this.card.textContent = firstMessage;
+                    this.card.classList.remove('fade-out');
+                    this.card.classList.add('fade-in');
+                    
+                    this.currentIndex = (this.currentIndex + 1) % this.messages.length;
+                }
+                
+                // Запускаем ротацию с случайным интервалом
+                this.scheduleNext();
+            }
+
+            /**
+             * Планирует показ следующего сообщения
+             */
+            scheduleNext() {
+                if (this.rotationTimer) {
+                    clearTimeout(this.rotationTimer);
+                }
+                
+                const interval = this.getRandomInterval();
+                this.rotationTimer = setTimeout(() => {
+                    this.showNext();
+                    this.scheduleNext();
+                }, interval);
+            }
+
+            /**
+             * Останавливает ротацию
+             */
+            stop() {
+                if (this.rotationTimer) {
+                    clearTimeout(this.rotationTimer);
+                    this.rotationTimer = null;
+                }
+            }
+        }
+
+        // ============================================
         // ИНИЦИАЛИЗАЦИЯ
         // ============================================
         
@@ -1153,6 +1399,28 @@
             }
             
             startAutoUpdate();
+            
+            // Инициализация ротаторов карточек уведомлений
+            const balanceRotator = new NotificationRotator(
+                'balance-notification',
+                NOTIFICATION_MESSAGES.balance,
+                'var(--color-lime)'
+            );
+            balanceRotator.start();
+            
+            const ramRotator = new NotificationRotator(
+                'ram-notification',
+                NOTIFICATION_MESSAGES.ram,
+                'var(--color-blue)'
+            );
+            ramRotator.start();
+            
+            const masRotator = new NotificationRotator(
+                'mas-notification',
+                NOTIFICATION_MESSAGES.mas,
+                'var(--color-purple)'
+            );
+            masRotator.start();
         });
 
         // Остановка при выгрузке страницы
