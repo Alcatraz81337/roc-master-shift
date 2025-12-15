@@ -417,32 +417,33 @@
         }
 
         /* Адаптация для экранов 1920×1080: уменьшение всех размеров в 2 раза */
-        @media (min-width: 1920px) and (max-width: 2559px) {
+        @media screen and (min-width: 1920px) and (max-width: 2559px),
+               screen and (max-height: 1080px) and (min-width: 1920px) {
             /* Уменьшение всех размеров текста и цифр в 2 раза (с дополнительной оптимизацией) */
-            .text-huge { font-size: 2.5rem; }
-            .text-big { font-size: 2.4rem; }
-            .text-label { font-size: 0.35rem; }
-            .text-value { font-size: 0.65rem; }
-            .text-desc { font-size: 0.65rem; }
-            .big-number-accent { font-size: 1.5rem; }
-            .card-effect { font-size: 0.65rem; }
-            .company-name { font-size: 0.7rem; }
-            .responsible-name-inline { font-size: 0.45rem; }
-            .card-footer { font-size: 0.4rem; }
-            .scroll-container { font-size: 0.4rem; }
-            h2 { font-size: 0.7rem; }
+            .text-huge { font-size: 2.2rem !important; }
+            .text-big { font-size: 2.2rem !important; }
+            .text-label { font-size: 0.35rem !important; }
+            .text-value { font-size: 0.6rem !important; }
+            .text-desc { font-size: 0.6rem !important; }
+            .big-number-accent { font-size: 1.4rem !important; }
+            .card-effect { font-size: 0.6rem !important; }
+            .company-name { font-size: 0.65rem !important; }
+            .responsible-name-inline { font-size: 0.4rem !important; }
+            .card-footer { font-size: 0.35rem !important; }
+            .scroll-container { font-size: 0.35rem !important; }
+            h2 { font-size: 0.65rem !important; }
             
             /* Уменьшение размеров единиц измерения в центральной карточке */
-            .hero-split span[style*="font-size: 2.25rem"] { font-size: 1rem !important; }
+            .hero-split span[style*="font-size: 2.25rem"] { font-size: 0.9rem !important; }
             
             /* Уменьшение размера текста в header */
-            .header > div > div { font-size: 0.5rem; }
+            .header > div > div { font-size: 0.45rem !important; }
             
             /* Уменьшение размеров логотипов и изображений в 2 раза */
             .header img[src*="roc_logo.png"],
             .header img[src*="emco_logo.png"] {
-                width: 80px !important;
-                height: 80px !important;
+                width: 70px !important;
+                height: 70px !important;
             }
             .header img[src*="roc_logo.png"] {
                 border-radius: 6px !important;
@@ -468,28 +469,35 @@
             .header { min-height: 0 !important; height: auto !important; }
             
             /* Более агрессивное уменьшение отступов для компактности */
-            body { padding: 8px !important; }
-            .bento-card { padding: 8px !important; }
-            .metric-card { padding: 6px 8px !important; }
-            .metric-list { gap: 6px !important; margin-top: 8px !important; }
-            .hero-split { padding: 12px !important; }
-            .header { padding: 0 4px !important; margin-bottom: 6px !important; }
-            .logo-area { gap: 6px !important; }
-            .responsible-info-inline { gap: 4px !important; }
-            .responsible-group { gap: 4px !important; }
-            .card-header-with-responsible { margin-bottom: 2px !important; }
-            .text-big { margin-bottom: 4px !important; }
-            .text-label { margin-bottom: 2px !important; }
-            .card-effect { padding: 5px 0 !important; }
-            .card-footer { padding-top: 6px !important; gap: 3px !important; }
-            .scroll-container { margin-top: 4px !important; padding-top: 3px !important; }
-            .grid-container { gap: 6px !important; }
-            .metric-text-group { gap: 1px !important; }
-            .notification-card { font-size: 0.4rem; padding: 4px 6px !important; }
-            .notification-container { margin-top: 4px !important; min-height: 18px !important; }
+            body { padding: 6px !important; }
+            .bento-card { padding: 6px !important; }
+            .metric-card { padding: 4px 6px !important; }
+            .metric-list { gap: 4px !important; margin-top: 6px !important; }
+            .hero-split { padding: 10px !important; }
+            .header { padding: 0 3px !important; margin-bottom: 4px !important; }
+            .logo-area { gap: 4px !important; }
+            .responsible-info-inline { gap: 3px !important; }
+            .responsible-group { gap: 3px !important; }
+            .card-header-with-responsible { margin-bottom: 1px !important; }
+            .text-big { margin-bottom: 3px !important; }
+            .text-label { margin-bottom: 1px !important; }
+            .card-effect { padding: 4px 0 !important; }
+            .card-footer { padding-top: 4px !important; gap: 2px !important; }
+            .scroll-container { margin-top: 3px !important; padding-top: 2px !important; }
+            .grid-container { gap: 4px !important; }
+            .metric-text-group { gap: 0.5px !important; }
+            .notification-card { font-size: 0.35rem !important; padding: 3px 4px !important; }
+            .notification-container { margin-top: 3px !important; min-height: 16px !important; }
             
             /* Уменьшение gap в header для второго div */
-            .header > div:last-child { gap: 6px !important; }
+            .header > div:last-child { gap: 4px !important; }
+            
+            /* Предотвращение переполнения */
+            body { overflow-x: hidden !important; }
+            .grid-container { overflow: visible !important; }
+            
+            /* Дополнительное уменьшение высоты header */
+            .header { max-height: 60px !important; }
             
             /* Уменьшение border-radius для компактности */
             .bento-card { border-radius: 12px !important; }
@@ -500,6 +508,19 @@
             
             /* Уменьшение отступов в card-header-with-responsible */
             .card-header-with-responsible h2 { margin: 0 !important; }
+            
+            /* Уменьшение max-width у grid-container для FullHD */
+            .grid-container { max-width: 100% !important; padding: 0 4px !important; }
+            
+            /* Дополнительное уменьшение размеров для лучшей компактности */
+            .text-big { line-height: 1 !important; }
+            .big-number-accent { line-height: 1 !important; }
+            
+            /* Уменьшение высоты строк в метриках */
+            .metric-card { min-height: auto !important; }
+            
+            /* Уменьшение отступов между секциями */
+            .content-layer { gap: 0 !important; }
         }
 
     </style>
