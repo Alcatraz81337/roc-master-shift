@@ -241,6 +241,8 @@
             opacity: 0;
             transform: translateY(10px);
             transition: opacity 0.5s ease, transform 0.5s ease;
+            position: relative;
+            will-change: transform, opacity;
         }
 
         .notification-card.fade-in {
@@ -253,19 +255,32 @@
             transform: translateY(-10px);
         }
 
-        @keyframes pulse-border {
-            0%, 100% {
-                box-shadow: 0 0 0 0 currentColor;
-                border-color: currentColor;
-            }
-            50% {
-                box-shadow: 0 0 5px 2px currentColor;
-                border-color: currentColor;
-            }
+        /* Пульсация обводки через псевдоэлемент (GPU-ускоренная анимация) */
+        .notification-card.pulsing {
+            isolation: isolate;
         }
 
-        .notification-card.pulsing {
-            animation: pulse-border 4s infinite ease-in-out;
+        .notification-card.pulsing::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: var(--radius-inner);
+            border: 2px solid currentColor;
+            opacity: 0.5;
+            animation: pulse-border-glow 2s infinite ease-in-out;
+            pointer-events: none;
+            will-change: opacity, transform;
+        }
+
+        @keyframes pulse-border-glow {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.9;
+                transform: scale(1.015);
+            }
         }
 
         /* 4. Responsible Person Block */
