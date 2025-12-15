@@ -557,49 +557,49 @@
         
         /* Специальный медиа-запрос для точного FullHD (1920px) и выше до 2559px */
         @media screen and (min-width: 1920px) and (max-width: 2559px) {
-            /* Оптимизированные размеры для FullHD - увеличены для лучшего использования пространства */
-            .text-huge { font-size: 3.5rem !important; }
-            .text-big { font-size: 3.5rem !important; }
-            .text-label { font-size: 0.6rem !important; }
+            /* Пропорциональное масштабирование для FullHD (коэффициент 0.75 от 2560×1440) */
+            .text-huge { font-size: 3.75rem !important; }
+            .text-big { font-size: 3.9rem !important; }
+            .text-label { font-size: 0.56rem !important; }
             .text-value { font-size: 1rem !important; }
-            .text-desc { font-size: 1rem !important; }
-            .big-number-accent { font-size: 2.2rem !important; }
+            .text-desc { font-size: 1.05rem !important; }
+            .big-number-accent { font-size: 2.5rem !important; }
             .card-effect { font-size: 1rem !important; }
-            .company-name { font-size: 1rem !important; }
+            .company-name { font-size: 1.1rem !important; }
             .responsible-name-inline { font-size: 0.7rem !important; }
-            .card-footer { font-size: 0.65rem !important; }
-            .scroll-container { font-size: 0.65rem !important; }
-            h2 { font-size: 1rem !important; }
+            .card-footer { font-size: 0.68rem !important; }
+            .scroll-container { font-size: 0.68rem !important; }
+            h2 { font-size: 1.1rem !important; }
             
-            .hero-split span[style*="font-size: 2.25rem"] { font-size: 1.5rem !important; }
-            .header > div > div { font-size: 0.8rem !important; }
+            .hero-split span[style*="font-size: 2.25rem"] { font-size: 1.7rem !important; }
+            .header > div > div { font-size: 0.75rem !important; }
             
             .header img[src*="roc_logo.png"],
             .header img[src*="emco_logo.png"],
             .header img[style*="160px"] {
-                width: 100px !important;
-                height: 100px !important;
+                width: 120px !important;
+                height: 120px !important;
             }
             
             .responsible-avatar-small {
-                width: 28px !important;
-                height: 28px !important;
+                width: 27px !important;
+                height: 27px !important;
             }
             
-            .col-vertical { min-height: 400px !important; }
+            .col-vertical { min-height: 360px !important; }
             .card-hero { min-height: 150px !important; }
-            .header { min-height: 0 !important; height: auto !important; max-height: 80px !important; }
+            .header { min-height: 45px !important; height: auto !important; max-height: 80px !important; }
             
-            body { padding: 16px !important; overflow-x: hidden !important; }
-            .bento-card { padding: 16px !important; }
-            .metric-card { padding: 12px 16px !important; }
-            .metric-list { gap: 12px !important; margin-top: 16px !important; }
-            .hero-split { padding: 24px !important; }
-            .header { padding: 0 8px !important; margin-bottom: 12px !important; }
+            body { padding: 18px !important; overflow-x: hidden !important; }
+            .bento-card { padding: 18px !important; }
+            .metric-card { padding: 15px 18px !important; }
+            .metric-list { gap: 12px !important; margin-top: 18px !important; }
+            .hero-split { padding: 30px !important; }
+            .header { padding: 0 8px !important; margin-bottom: 15px !important; }
             .logo-area { gap: 12px !important; }
             .grid-container { 
                 max-width: 100% !important; 
-                width: calc(100% - 32px) !important;
+                width: calc(100% - 36px) !important;
                 padding: 0 8px !important; 
                 gap: 12px !important;
             }
@@ -609,36 +609,36 @@
                 overflow-x: hidden !important;
             }
             
-            /* Дополнительные оптимизированные отступы для FullHD */
-            .responsible-info-inline { gap: 8px !important; }
-            .responsible-group { gap: 8px !important; }
-            .card-header-with-responsible { margin-bottom: 8px !important; }
-            .text-big { margin-bottom: 8px !important; }
+            /* Дополнительные пропорциональные отступы для FullHD (коэффициент 0.75) */
+            .responsible-info-inline { gap: 9px !important; }
+            .responsible-group { gap: 9px !important; }
+            .card-header-with-responsible { margin-bottom: 6px !important; }
+            .text-big { margin-bottom: 9px !important; }
             .text-label { margin-bottom: 6px !important; }
-            .card-effect { padding: 12px 0 !important; }
-            .card-footer { padding-top: 12px !important; gap: 6px !important; }
+            .card-effect { padding: 11px 0 !important; }
+            .card-footer { padding-top: 15px !important; gap: 6px !important; }
             .scroll-container { margin-top: 8px !important; padding-top: 8px !important; }
             .metric-text-group { gap: 4px !important; }
-            .notification-card { font-size: 0.7rem !important; padding: 8px 12px !important; }
+            .notification-card { font-size: 0.68rem !important; padding: 8px 12px !important; }
             .notification-container { margin-top: 12px !important; min-height: 40px !important; }
             .header > div:last-child { gap: 12px !important; }
-            .header-divider-vertical { height: 40px !important; }
-            .bento-card { border-radius: 16px !important; }
-            .metric-card { border-radius: 10px !important; }
+            .header-divider-vertical { height: 27px !important; }
+            .bento-card { border-radius: 18px !important; }
+            .metric-card { border-radius: 9px !important; }
             
             /* Переопределение inline стилей для FullHD */
             .header img[src="roc_logo.png"],
             .header img[src="emco_logo.png"],
             .header img[style*="width: 160px"],
             .header img[style*="160px"] {
-                width: 100px !important;
-                height: 100px !important;
-                max-width: 100px !important;
-                max-height: 100px !important;
+                width: 120px !important;
+                height: 120px !important;
+                max-width: 120px !important;
+                max-height: 120px !important;
             }
             
             .header > div > div[style*="font-size: 1rem"] {
-                font-size: 0.8rem !important;
+                font-size: 0.75rem !important;
             }
             
             .header > div[style*="gap: 16px"] {
