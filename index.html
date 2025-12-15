@@ -438,6 +438,35 @@
             /* Уменьшение размера текста в header */
             .header > div > div { font-size: 0.5rem; }
             
+            /* Уменьшение размеров логотипов и изображений в 2 раза */
+            .header img[src*="roc_logo.png"],
+            .header img[src*="emco_logo.png"] {
+                width: 80px !important;
+                height: 80px !important;
+            }
+            .header img[src*="roc_logo.png"] {
+                border-radius: 6px !important;
+            }
+            
+            /* Уменьшение размеров аватаров в 2 раза */
+            .responsible-avatar-small {
+                width: 18px !important;
+                height: 18px !important;
+            }
+            
+            /* Уменьшение размеров logo-box в 2 раза */
+            .logo-box {
+                width: 20px !important;
+                height: 20px !important;
+                font-size: 0.4rem !important;
+                border-radius: 5px !important;
+            }
+            
+            /* Уменьшение минимальных высот карточек в 2 раза */
+            .col-vertical { min-height: 240px; }
+            .card-hero { min-height: 100px; }
+            .header { min-height: 30px; }
+            
             /* Уменьшение отступов, padding, margin, gap в 2 раза */
             body { padding: 12px; }
             .bento-card { padding: 12px; }
@@ -458,6 +487,9 @@
             .metric-text-group { gap: 1px; }
             .notification-card { font-size: 0.45rem; padding: 6px 8px; }
             .notification-container { margin-top: 8px; min-height: 25px; }
+            
+            /* Уменьшение gap в header для второго div */
+            .header > div:last-child { gap: 8px !important; }
         }
 
     </style>
@@ -917,6 +949,36 @@
         }
 
         /**
+         * Получает массив значений из диапазона ячеек Google Таблицы
+         * @param {string} sheetName - Название листа
+         * @param {string} range - Диапазон ячеек (например, 'B4:B24')
+         * @returns {Promise<Array<string>>} Массив непустых строк
+         */
+        async function fetchRangeValues(sheetName, range) {
+            try {
+                console.log(`[DEBUG] Загрузка диапазона ${range} из листа "${sheetName}"`);
+                const data = await fetchSheetData(sheetName, range);
+                
+                if (!data || data.length === 0) {
+                    console.warn(`[WARNING] Диапазон ${range} пуст или не найден`);
+                    return [];
+                }
+                
+                // Извлекаем значения из первого столбца (для вертикального диапазона)
+                const values = data.map(row => row[0]).filter(value => {
+                    // Фильтруем пустые значения, null, undefined
+                    return value !== null && value !== undefined && String(value).trim() !== '';
+                });
+                
+                console.log(`[DEBUG] Загружено ${values.length} значений из диапазона ${range}`);
+                return values;
+            } catch (error) {
+                console.error(`[ERROR] Ошибка при загрузке диапазона ${range} из листа "${sheetName}":`, error);
+                return [];
+            }
+        }
+
+        /**
          * Парсит CSV текст в массив массивов
          * @param {string} csvText - CSV текст
          * @returns {Array<Array>} Массив строк
@@ -1201,9 +1263,27 @@
             try {
                 console.log('[DEBUG] Начало загрузки данных из Google Таблицы...');
                 console.log('[DEBUG] ID таблицы:', CONFIG.SHEET_ID);
-                const metrics = await loadAllMetrics();
+                
+                // Загружаем метрики и сообщения параллельно
+                const [metrics] = await Promise.all([
+                    loadAllMetrics(),
+                    loadNotificationMessages()
+                ]);
+                
                 console.log('[DEBUG] Данные загружены, обновление дашборда...');
                 updateDashboard(metrics);
+                
+                // Обновляем сообщения в ротаторах
+                if (balanceRotator) {
+                    balanceRotator.updateMessages(NOTIFICATION_MESSAGES.balance);
+                }
+                if (ramRotator) {
+                    ramRotator.updateMessages(NOTIFICATION_MESSAGES.ram);
+                }
+                if (masRotator) {
+                    masRotator.updateMessages(NOTIFICATION_MESSAGES.mas);
+                }
+                
                 console.log('[DEBUG] Дашборд обновлен');
             } catch (error) {
                 console.error('[ERROR] Ошибка при обновлении данных:', error);
@@ -1256,29 +1336,45 @@
         // ============================================
         
         /**
-         * Конфигурация сообщений для карточек уведомлений
-         * Структура позволяет легко расширить до 20 сообщений
+         * Сообщения для карточек уведомлений
+         * Загружаются из листа "Обнаружения" Google Таблицы
          */
-        const NOTIFICATION_MESSAGES = {
-            balance: [
-                'Выявлен дефицит самосвалов в звене',
-                'Обнаружено неисполнение директивы о перенаправлении',
-                'Выявлен профицит самосвалов в звене'
-                // Место для расширения до 20 сообщений
-            ],
-            ram: [
-                'Обнаружена дорожная аномалия',
-                'Определён проблемный участок',
-                'Выявлен простой вспомогательной техники'
-                // Место для расширения до 20 сообщений
-            ],
-            mas: [
-                'Замечен простой АС. Проводится мониторинг',
-                'Обнаружен сбой работы ИИ-агентов',
-                'Замечен простой ЭВ. Проводится мониторинг'
-                // Место для расширения до 20 сообщений
-            ]
+        let NOTIFICATION_MESSAGES = {
+            balance: [], // Загружается из Обнаружения!B4:B24
+            ram: [],    // Загружается из Обнаружения!C4:C24
+            mas: []     // Загружается из Обнаружения!D4:D24
         };
+
+        /**
+         * Загружает сообщения для карточек уведомлений из Google Таблицы
+         * @returns {Promise<void>}
+         */
+        async function loadNotificationMessages() {
+            try {
+                console.log('[DEBUG] Начало загрузки сообщений для карточек уведомлений...');
+                
+                // Загружаем все три диапазона параллельно
+                const [balanceMessages, ramMessages, masMessages] = await Promise.all([
+                    fetchRangeValues('Обнаружения', 'B4:B24'),
+                    fetchRangeValues('Обнаружения', 'C4:C24'),
+                    fetchRangeValues('Обнаружения', 'D4:D24')
+                ]);
+                
+                // Обновляем сообщения
+                NOTIFICATION_MESSAGES.balance = balanceMessages;
+                NOTIFICATION_MESSAGES.ram = ramMessages;
+                NOTIFICATION_MESSAGES.mas = masMessages;
+                
+                console.log('[DEBUG] Сообщения загружены:', {
+                    balance: balanceMessages.length,
+                    ram: ramMessages.length,
+                    mas: masMessages.length
+                });
+            } catch (error) {
+                console.error('[ERROR] Ошибка при загрузке сообщений для карточек уведомлений:', error);
+                // В случае ошибки оставляем пустые массивы
+            }
+        }
 
         /**
          * Класс для ротации карточек уведомлений
@@ -1398,14 +1494,53 @@
                     this.rotationTimer = null;
                 }
             }
+
+            /**
+             * Обновляет сообщения и перезапускает ротацию
+             * @param {Array<string>} newMessages - Новый массив сообщений
+             */
+            updateMessages(newMessages) {
+                if (!Array.isArray(newMessages)) {
+                    console.warn('[WARNING] updateMessages получил не массив:', newMessages);
+                    return;
+                }
+                
+                const wasRunning = this.rotationTimer !== null;
+                
+                // Останавливаем текущую ротацию, если она запущена
+                if (wasRunning) {
+                    this.stop();
+                }
+                
+                // Обновляем сообщения
+                this.messages = newMessages;
+                this.currentIndex = 0;
+                
+                // Если ротация была запущена и есть новые сообщения, перезапускаем
+                if (wasRunning && this.messages.length > 0) {
+                    this.start();
+                } else if (wasRunning && this.messages.length === 0) {
+                    // Если сообщений нет, скрываем карточку
+                    if (this.card) {
+                        this.card.textContent = '';
+                        this.card.classList.remove('fade-in');
+                        this.card.classList.add('fade-out');
+                    }
+                }
+            }
         }
 
         // ============================================
         // ИНИЦИАЛИЗАЦИЯ
         // ============================================
         
+        // Глобальные ссылки на ротаторы для обновления сообщений
+        let balanceRotator = null;
+        let ramRotator = null;
+        let masRotator = null;
+
         // Запуск при загрузке страницы
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Проверка наличия ID таблицы
             if (CONFIG.SHEET_ID === 'YOUR_SHEET_ID_HERE') {
                 console.warn('⚠️ Необходимо указать ID Google Таблицы в конфигурации!');
@@ -1413,24 +1548,27 @@
                 return;
             }
             
+            // Загружаем сообщения для карточек уведомлений
+            await loadNotificationMessages();
+            
             startAutoUpdate();
             
             // Инициализация ротаторов карточек уведомлений
-            const balanceRotator = new NotificationRotator(
+            balanceRotator = new NotificationRotator(
                 'balance-notification',
                 NOTIFICATION_MESSAGES.balance,
                 'var(--color-lime)'
             );
             balanceRotator.start();
             
-            const ramRotator = new NotificationRotator(
+            ramRotator = new NotificationRotator(
                 'ram-notification',
                 NOTIFICATION_MESSAGES.ram,
                 'var(--color-blue)'
             );
             ramRotator.start();
             
-            const masRotator = new NotificationRotator(
+            masRotator = new NotificationRotator(
                 'mas-notification',
                 NOTIFICATION_MESSAGES.mas,
                 'var(--color-purple)'
