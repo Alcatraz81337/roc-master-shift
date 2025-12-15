@@ -662,8 +662,8 @@
                 // Строка 7, столбец N: Выявлено нарушений работы ИИ-агентов (Итого)
                 'mas-errors': { sheet: 'MAS', range: 'N7', type: 'number' },
                 // Временные значения - можно будет настроить позже
-                'mas-effect': { sheet: 'MAS', range: 'B6', type: 'number' },
-                'mas-event': { sheet: 'MAS', range: 'B7', type: 'text' }
+                'mas-effect': { sheet: 'MAS', range: 'P14', type: 'text' },
+                'mas-event': { sheet: 'MAS', range: 'N22', type: 'text' }
             }
         };
 
@@ -868,6 +868,18 @@
         }
 
         /**
+         * Форматирует число с разделителями тысяч и двумя знаками после запятой
+         * @param {number|string} value - Число для форматирования
+         * @returns {string} Отформатированное число
+         */
+        function formatVolumeNumber(value) {
+            if (value === null || value === undefined || value === '') return '0,00';
+            const num = typeof value === 'string' ? parseFloat(value.replace(/\s/g, '').replace(',', '.')) : value;
+            if (isNaN(num)) return '0,00';
+            return num.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        /**
          * Преобразует значение в число
          * @param {string|number} value - Значение
          * @returns {number} Число
@@ -936,19 +948,29 @@
          * @param {string|number} newValue - Новое значение
          * @param {boolean} animate - Анимировать ли изменение
          * @param {boolean} useFinancialFormat - Использовать ли форматирование с одним знаком после запятой
+         * @param {boolean} useVolumeFormat - Использовать ли форматирование с двумя знаками после запятой
          */
-        function updateElementValue(element, newValue, animate = true, useFinancialFormat = false) {
+        function updateElementValue(element, newValue, animate = true, useFinancialFormat = false, useVolumeFormat = false) {
             if (!element) return;
             
             const oldValue = element.textContent.trim();
-            const formattedValue = typeof newValue === 'number' 
-                ? (useFinancialFormat ? formatFinancialNumber(newValue) : formatNumber(newValue))
-                : newValue;
+            let formattedValue;
+            if (typeof newValue === 'number') {
+                if (useVolumeFormat) {
+                    formattedValue = formatVolumeNumber(newValue);
+                } else if (useFinancialFormat) {
+                    formattedValue = formatFinancialNumber(newValue);
+                } else {
+                    formattedValue = formatNumber(newValue);
+                }
+            } else {
+                formattedValue = newValue;
+            }
             
             if (oldValue === formattedValue) return;
             
             if (animate && typeof newValue === 'number') {
-                animateNumberChange(element, parseNumber(oldValue), newValue, useFinancialFormat);
+                animateNumberChange(element, parseNumber(oldValue), newValue, useFinancialFormat, useVolumeFormat);
             } else {
                 element.textContent = formattedValue;
             }
@@ -960,8 +982,9 @@
          * @param {number} from - Начальное значение
          * @param {number} to - Конечное значение
          * @param {boolean} useFinancialFormat - Использовать ли форматирование с одним знаком после запятой
+         * @param {boolean} useVolumeFormat - Использовать ли форматирование с двумя знаками после запятой
          */
-        function animateNumberChange(element, from, to, useFinancialFormat = false) {
+        function animateNumberChange(element, from, to, useFinancialFormat = false, useVolumeFormat = false) {
             const duration = 500; // миллисекунды
             const startTime = Date.now();
             const difference = to - from;
@@ -974,16 +997,24 @@
                 const easeOut = 1 - Math.pow(1 - progress, 3);
                 const current = from + difference * easeOut;
                 
-                element.textContent = useFinancialFormat 
-                    ? formatFinancialNumber(current)
-                    : formatNumber(Math.round(current));
+                if (useVolumeFormat) {
+                    element.textContent = formatVolumeNumber(current);
+                } else if (useFinancialFormat) {
+                    element.textContent = formatFinancialNumber(current);
+                } else {
+                    element.textContent = formatNumber(Math.round(current));
+                }
                 
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 } else {
-                    element.textContent = useFinancialFormat 
-                        ? formatFinancialNumber(to)
-                        : formatNumber(to);
+                    if (useVolumeFormat) {
+                        element.textContent = formatVolumeNumber(to);
+                    } else if (useFinancialFormat) {
+                        element.textContent = formatFinancialNumber(to);
+                    } else {
+                        element.textContent = formatNumber(to);
+                    }
                 }
             }
             
@@ -997,7 +1028,7 @@
         function updateDashboard(metrics) {
             // Общие метрики
             updateElementValue(document.querySelector('[data-metric="total-recommendations"]'), metrics['total-recommendations']);
-            updateElementValue(document.querySelector('[data-metric="total-volume"]'), metrics['total-volume']);
+            updateElementValue(document.querySelector('[data-metric="total-volume"]'), metrics['total-volume'], true, false, true);
             updateElementValue(document.querySelector('[data-metric="total-financial"]'), metrics['total-financial'], true, true);
             
             // BALANCE
