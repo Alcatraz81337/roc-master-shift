@@ -390,7 +390,7 @@
             <div class="hero-split">
                 <div class="text-label">ОБЪЁМЫ</div>
                 <div class="text-big c-blue"><span data-metric="total-volume">5</span> <span style="font-size: 2.25rem;">тыс. м³</span></div> <!-- Увеличен размер единицы -->
-                <div class="text-desc">Общий объем отработанного материала</div>
+                <div class="text-desc">Дополнительный объем горной массы</div>
             </div>
             
             <div class="hero-divider"></div>
@@ -637,20 +637,20 @@
                 'total-financial': { sheet: 'Общие', range: 'B4', type: 'number' },
                 
                 // BALANCE метрики (лист "BALANCE")
-                'balance-recommendations': { sheet: 'BALANCE', range: 'B2', type: 'number' },
-                'balance-deficit': { sheet: 'BALANCE', range: 'B3', type: 'number' },
-                'balance-timely': { sheet: 'BALANCE', range: 'B4', type: 'number' },
-                'balance-violations': { sheet: 'BALANCE', range: 'B5', type: 'number' },
-                'balance-effect': { sheet: 'BALANCE', range: 'B6', type: 'number' },
-                'balance-event': { sheet: 'BALANCE', range: 'B7', type: 'text' },
+                'balance-recommendations': { sheet: 'BALANCE', range: 'N4', type: 'number' },
+                'balance-deficit': { sheet: 'BALANCE', range: 'N8', type: 'number' },
+                'balance-timely': { sheet: 'BALANCE', range: 'N7', type: 'number' },
+                'balance-violations': { sheet: 'BALANCE', range: 'N6', type: 'number' },
+                'balance-effect': { sheet: 'BALANCE', range: 'O14', type: 'number' },
+                'balance-event': { sheet: 'BALANCE', range: 'N22', type: 'text' },
                 
                 // RAM метрики (лист "RAM")
-                'ram-anomalies': { sheet: 'RAM', range: 'B2', type: 'number' },
-                'ram-directives': { sheet: 'RAM', range: 'B3', type: 'number' },
-                'ram-directives-2': { sheet: 'RAM', range: 'B4', type: 'number' },
+                'ram-anomalies': { sheet: 'RAM', range: 'M4', type: 'number' },
+                'ram-directives': { sheet: 'RAM', range: 'M4', type: 'number' },
+                'ram-directives-2': { sheet: 'RAM', range: 'M7', type: 'number' },
                 'ram-downtime-aux': { sheet: 'RAM', range: 'M8', type: 'number' },
                 'ram-effect': { sheet: 'RAM', range: 'B5', type: 'number' },
-                'ram-event': { sheet: 'RAM', range: 'B6', type: 'text' },
+                'ram-event': { sheet: 'RAM', range: 'M22', type: 'text' },
                 
                 // MAS метрики (лист "MAS")
                 // Строка 4, столбец N: Выявлено нарушений простоев ГТО (Итого)
@@ -856,6 +856,18 @@
         }
 
         /**
+         * Форматирует число с разделителями тысяч и одним знаком после запятой
+         * @param {number|string} value - Число для форматирования
+         * @returns {string} Отформатированное число
+         */
+        function formatFinancialNumber(value) {
+            if (value === null || value === undefined || value === '') return '0,0';
+            const num = typeof value === 'string' ? parseFloat(value.replace(/\s/g, '').replace(',', '.')) : value;
+            if (isNaN(num)) return '0,0';
+            return num.toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        }
+
+        /**
          * Преобразует значение в число
          * @param {string|number} value - Значение
          * @returns {number} Число
@@ -923,17 +935,20 @@
          * @param {HTMLElement} element - Элемент для обновления
          * @param {string|number} newValue - Новое значение
          * @param {boolean} animate - Анимировать ли изменение
+         * @param {boolean} useFinancialFormat - Использовать ли форматирование с одним знаком после запятой
          */
-        function updateElementValue(element, newValue, animate = true) {
+        function updateElementValue(element, newValue, animate = true, useFinancialFormat = false) {
             if (!element) return;
             
             const oldValue = element.textContent.trim();
-            const formattedValue = typeof newValue === 'number' ? formatNumber(newValue) : newValue;
+            const formattedValue = typeof newValue === 'number' 
+                ? (useFinancialFormat ? formatFinancialNumber(newValue) : formatNumber(newValue))
+                : newValue;
             
             if (oldValue === formattedValue) return;
             
             if (animate && typeof newValue === 'number') {
-                animateNumberChange(element, parseNumber(oldValue), newValue);
+                animateNumberChange(element, parseNumber(oldValue), newValue, useFinancialFormat);
             } else {
                 element.textContent = formattedValue;
             }
@@ -944,8 +959,9 @@
          * @param {HTMLElement} element - Элемент
          * @param {number} from - Начальное значение
          * @param {number} to - Конечное значение
+         * @param {boolean} useFinancialFormat - Использовать ли форматирование с одним знаком после запятой
          */
-        function animateNumberChange(element, from, to) {
+        function animateNumberChange(element, from, to, useFinancialFormat = false) {
             const duration = 500; // миллисекунды
             const startTime = Date.now();
             const difference = to - from;
@@ -956,14 +972,18 @@
                 
                 // Easing функция для плавности
                 const easeOut = 1 - Math.pow(1 - progress, 3);
-                const current = Math.round(from + difference * easeOut);
+                const current = from + difference * easeOut;
                 
-                element.textContent = formatNumber(current);
+                element.textContent = useFinancialFormat 
+                    ? formatFinancialNumber(current)
+                    : formatNumber(Math.round(current));
                 
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 } else {
-                    element.textContent = formatNumber(to);
+                    element.textContent = useFinancialFormat 
+                        ? formatFinancialNumber(to)
+                        : formatNumber(to);
                 }
             }
             
@@ -978,7 +998,7 @@
             // Общие метрики
             updateElementValue(document.querySelector('[data-metric="total-recommendations"]'), metrics['total-recommendations']);
             updateElementValue(document.querySelector('[data-metric="total-volume"]'), metrics['total-volume']);
-            updateElementValue(document.querySelector('[data-metric="total-financial"]'), metrics['total-financial']);
+            updateElementValue(document.querySelector('[data-metric="total-financial"]'), metrics['total-financial'], true, true);
             
             // BALANCE
             updateElementValue(document.querySelector('[data-metric="balance-recommendations"]'), metrics['balance-recommendations']);
