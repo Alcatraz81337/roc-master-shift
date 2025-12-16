@@ -581,8 +581,51 @@
             }
         }
 
-        /* Медиа-запрос для 4K экранов (3840×2160) - все размеры увеличены в 1.5 раза, кроме отступов контейнера */
-        @media screen and (min-width: 3840px) {
+        /* Медиа-запрос для разрешений 2560px-3839px (базовые стили для 2560×1440) */
+        @media screen and (min-width: 2560px) and (max-width: 3839px) {
+            /* Используем базовые стили для 2560×1440 */
+            body { 
+                padding: 24px !important; 
+                overflow-x: hidden !important; 
+            }
+            
+            .grid-container { 
+                max-width: 1800px !important;
+                width: 100% !important;
+                padding: 0 !important; 
+                margin: 0 auto !important;
+            }
+            
+            html, body {
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+                box-sizing: border-box !important;
+            }
+        }
+
+        /* Медиа-запрос для 4K экранов (3840×2160 и выше) - все размеры увеличены в 1.5 раза, кроме отступов контейнера */
+        /* Используем комбинацию ширины и высоты для более точного определения 4K экранов */
+        @media screen and (min-width: 3200px) and (min-height: 1800px),
+               screen and (min-width: 3840px) {
+            /* Отступы контейнера остаются как для 2560×1440 */
+            body { 
+                padding: 24px !important; 
+                overflow-x: hidden !important; 
+            }
+            
+            .grid-container { 
+                max-width: 1800px !important;
+                width: 100% !important;
+                padding: 0 !important; 
+                margin: 0 auto !important;
+            }
+            
+            html, body {
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+                box-sizing: border-box !important;
+            }
+
             /* CSS переменные */
             :root {
                 --radius-outer: 36px;
