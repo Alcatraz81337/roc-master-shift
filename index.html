@@ -230,7 +230,7 @@
         /* Notification Card Styles */
         .notification-container {
             margin-top: 16px;
-            min-height: 50px;
+            min-height: 75px; /* Увеличено в 1.5 раза: 50px × 1.5 = 75px */
             position: relative;
         }
 
@@ -238,8 +238,8 @@
             background: rgba(255, 255, 255, 0.03);
             border: 2px solid;
             border-radius: var(--radius-inner);
-            padding: 12px 16px;
-            font-size: 0.9rem;
+            padding: 18px 24px; /* Увеличено в 1.5 раза: 12px×1.5, 16px×1.5 */
+            font-size: 1.35rem; /* Увеличено в 1.5 раза: 0.9rem × 1.5 = 1.35rem */
             color: var(--text-primary);
             line-height: 1.4;
             opacity: 0;
@@ -344,12 +344,12 @@
         .scroll-container {
             overflow: hidden;
             white-space: nowrap;
-            height: 35px; /* Увеличено для запаса */
-            margin-top: 10px; /* Увеличен отступ */
-            font-size: 0.9rem; /* Немного увеличен для лучшей читаемости */
+            height: 52.5px; /* Увеличено в 1.5 раза: 35px × 1.5 = 52.5px */
+            margin-top: 15px; /* Увеличено в 1.5 раза: 10px × 1.5 = 15px */
+            font-size: 1.35rem; /* Увеличено в 1.5 раза: 0.9rem × 1.5 = 1.35rem */
             color: var(--text-muted);
             border-top: 1px solid var(--border-glass);
-            padding-top: 8px;
+            padding-top: 12px; /* Увеличено в 1.5 раза: 8px × 1.5 = 12px */
         }
         .scroll-text {
             display: inline-block;
@@ -1747,6 +1747,7 @@
         /**
          * Проверяет, должно ли применяться 4K разрешение
          * Использует строгие условия: физическое разрешение должно быть 4K И viewport должен быть достаточно большим
+         * НЕ применяет для экранов с маленьким физическим разрешением (<2000px), даже при высоком DPR
          * @returns {boolean} true, если должно применяться 4K
          */
         function shouldApply4KStyles() {
@@ -1754,6 +1755,12 @@
             const viewportHeight = window.innerHeight;
             const screenWidth = window.screen.width;
             const screenHeight = window.screen.height;
+            
+            // ИСКЛЮЧАЕМ экраны с маленьким физическим разрешением (<2000px)
+            // Это предотвращает применение 4K стилей на экранах с высоким DPR и маленьким физическим разрешением
+            if (screenWidth < 2000) {
+                return false;
+            }
             
             // Строгая проверка: физическое разрешение должно быть 4K (3840×2160 или близко)
             const isPhysical4K = (screenWidth >= 3800 && screenHeight >= 2100) || screenWidth >= 3840;
@@ -1816,6 +1823,9 @@
                     .force-4k-styles .responsible-name-inline { font-size: 1.425rem !important; }
                     .force-4k-styles .card-footer { font-size: 1.35rem !important; padding-top: 30px !important; gap: 12px !important; }
                     .force-4k-styles .scroll-container { font-size: 1.35rem !important; height: 52.5px !important; margin-top: 15px !important; padding-top: 12px !important; }
+                    .force-4k-styles .notification-container { margin-top: 24px !important; min-height: 75px !important; }
+                    .force-4k-styles .notification-card { padding: 18px 24px !important; font-size: 1.35rem !important; transform: translateY(15px) !important; }
+                    .force-4k-styles .notification-card.fade-out { transform: translateY(-15px) !important; }
                     .force-4k-styles h2 { font-size: 2.25rem !important; }
                     .force-4k-styles .header > div > div { font-size: 1.5rem !important; }
                     .force-4k-styles .bento-card { padding: 36px !important; box-shadow: 0 6px 36px rgba(0, 0, 0, 0.2) !important; }
@@ -1829,9 +1839,6 @@
                     .force-4k-styles .card-header-with-responsible { margin-bottom: 12px !important; }
                     .force-4k-styles .metric-text-group { gap: 3px !important; }
                     .force-4k-styles .footer-highlight { margin-left: 6px !important; }
-                    .force-4k-styles .notification-container { margin-top: 24px !important; min-height: 75px !important; }
-                    .force-4k-styles .notification-card { padding: 18px 24px !important; font-size: 1.35rem !important; transform: translateY(15px) !important; }
-                    .force-4k-styles .notification-card.fade-out { transform: translateY(-15px) !important; }
                     .force-4k-styles .col-vertical { min-height: 720px !important; }
                     .force-4k-styles .card-hero { min-height: 300px !important; }
                     .force-4k-styles .logo-box { width: 60px !important; height: 60px !important; border-radius: 15px !important; font-size: 1.2rem !important; }
