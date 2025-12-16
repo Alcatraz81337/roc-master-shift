@@ -1741,6 +1741,115 @@
         }
 
         // ============================================
+        // ДИАГНОСТИКА МЕДИА-ЗАПРОСОВ
+        // ============================================
+        
+        /**
+         * Диагностика медиа-запросов и разрешения экрана
+         */
+        function diagnoseMediaQueries() {
+            const info = {
+                screen: {
+                    width: window.screen.width,
+                    height: window.screen.height,
+                    availWidth: window.screen.availWidth,
+                    availHeight: window.screen.availHeight
+                },
+                viewport: {
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    devicePixelRatio: window.devicePixelRatio || 1
+                },
+                mediaQueries: {}
+            };
+
+            // Проверяем активные медиа-запросы
+            const mediaQueryList = [
+                { name: '769px-1919px', query: window.matchMedia('screen and (min-width: 769px) and (max-width: 1919px)') },
+                { name: '1920px-2559px', query: window.matchMedia('screen and (min-width: 1920px) and (max-width: 2559px)') },
+                { name: '2560px-3839px', query: window.matchMedia('screen and (min-width: 2560px) and (max-width: 3839px)') },
+                { name: '4K-3200x1800', query: window.matchMedia('screen and (min-width: 3200px) and (min-height: 1800px)') },
+                { name: '4K-3840px', query: window.matchMedia('screen and (min-width: 3840px)') }
+            ];
+
+            mediaQueryList.forEach(mq => {
+                info.mediaQueries[mq.name] = {
+                    matches: mq.query.matches,
+                    media: mq.query.media
+                };
+            });
+
+            // Проверяем вычисленные стили для ключевых элементов
+            const testElements = {
+                'body': document.body,
+                '.text-big': document.querySelector('.text-big'),
+                '.bento-card': document.querySelector('.bento-card'),
+                '.grid-container': document.querySelector('.grid-container')
+            };
+
+            const computedStyles = {};
+            Object.keys(testElements).forEach(selector => {
+                const element = testElements[selector];
+                if (element) {
+                    const styles = window.getComputedStyle(element);
+                    computedStyles[selector] = {
+                        fontSize: styles.fontSize,
+                        padding: styles.padding,
+                        maxWidth: styles.maxWidth,
+                        width: styles.width
+                    };
+                }
+            });
+
+            // Логируем всю информацию
+            console.group('🔍 ДИАГНОСТИКА МЕДИА-ЗАПРОСОВ И РАЗРЕШЕНИЯ');
+            console.log('📺 Физическое разрешение экрана:', `${info.screen.width}×${info.screen.height}`);
+            console.log('📐 Разрешение viewport:', `${info.viewport.width}×${info.viewport.height}`);
+            console.log('🔍 Device Pixel Ratio:', info.viewport.devicePixelRatio);
+            console.log('📏 Эффективное разрешение (с учетом DPR):', 
+                `${Math.round(info.viewport.width * info.viewport.devicePixelRatio)}×${Math.round(info.viewport.height * info.viewport.devicePixelRatio)}`);
+            
+            console.group('🎯 Активные медиа-запросы:');
+            Object.keys(info.mediaQueries).forEach(name => {
+                const mq = info.mediaQueries[name];
+                const status = mq.matches ? '✅ АКТИВЕН' : '❌ неактивен';
+                console.log(`${status} - ${name}: ${mq.media}`);
+            });
+            console.groupEnd();
+
+            console.group('💅 Вычисленные стили элементов:');
+            Object.keys(computedStyles).forEach(selector => {
+                console.log(`${selector}:`, computedStyles[selector]);
+            });
+            console.groupEnd();
+
+            // Определяем, какой медиа-запрос должен быть активен
+            const activeMQ = mediaQueryList.find(mq => mq.query.matches);
+            if (activeMQ) {
+                console.log(`✅ Активный медиа-запрос: ${activeMQ.name}`);
+            } else {
+                console.warn('⚠️ НИ ОДИН медиа-запрос не активен! Используются базовые стили.');
+            }
+
+            // Проверяем, должен ли применяться 4K медиа-запрос
+            const shouldBe4K = info.viewport.width >= 3200 && info.viewport.height >= 1800 || info.viewport.width >= 3840;
+            const is4KActive = info.mediaQueries['4K-3200x1800'].matches || info.mediaQueries['4K-3840px'].matches;
+            
+            if (shouldBe4K && !is4KActive) {
+                console.error('❌ ОШИБКА: Должен применяться 4K медиа-запрос, но он неактивен!');
+                console.log('   Ожидалось: viewport >= 3200×1800 или >= 3840px');
+                console.log(`   Фактически: viewport = ${info.viewport.width}×${info.viewport.height}`);
+            } else if (shouldBe4K && is4KActive) {
+                console.log('✅ 4K медиа-запрос активен и должен применяться');
+            }
+
+            console.groupEnd();
+
+            // Возвращаем информацию для дальнейшего использования
+            return info;
+        }
+
+        // ============================================
         // ИНИЦИАЛИЗАЦИЯ
         // ============================================
         
@@ -1751,6 +1860,19 @@
 
         // Запуск при загрузке страницы
         document.addEventListener('DOMContentLoaded', async () => {
+            // Диагностика медиа-запросов при загрузке
+            diagnoseMediaQueries();
+
+            // Диагностика при изменении размера окна
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    console.log('\n🔄 Размер окна изменился, повторная диагностика...');
+                    diagnoseMediaQueries();
+                }, 500);
+            });
+
             // Проверка наличия ID таблицы
             if (CONFIG.SHEET_ID === 'YOUR_SHEET_ID_HERE') {
                 console.warn('⚠️ Необходимо указать ID Google Таблицы в конфигурации!');
