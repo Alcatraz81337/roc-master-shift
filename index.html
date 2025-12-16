@@ -1646,7 +1646,8 @@
              */
             showNext() {
                 if (!this.messages || this.messages.length === 0) {
-                    console.warn('[WARNING] Нет сообщений для отображения');
+                    // Если сообщений нет, просто пропускаем этот цикл
+                    // Ротация продолжится через scheduleNext()
                     return;
                 }
                 
@@ -1663,7 +1664,7 @@
             start() {
                 if (!this.container || !this.card) return;
                 
-                // Показываем первое сообщение сразу
+                // Показываем первое сообщение сразу, если есть сообщения
                 if (this.messages && this.messages.length > 0) {
                     this.currentIndex = Math.floor(Math.random() * this.messages.length);
                     const firstMessage = this.messages[this.currentIndex];
@@ -1676,7 +1677,9 @@
                     this.currentIndex = (this.currentIndex + 1) % this.messages.length;
                 }
                 
-                // Запускаем ротацию с случайным интервалом
+                // Всегда запускаем ротацию с случайным интервалом
+                // Это гарантирует непрерывную работу, даже если сообщений пока нет
+                // Когда сообщения появятся, они сразу начнут показываться
                 this.scheduleNext();
             }
 
@@ -1715,6 +1718,12 @@
                     return;
                 }
                 
+                // Если новый массив пустой, сохраняем старые сообщения и продолжаем ротацию
+                if (newMessages.length === 0) {
+                    console.log('[DEBUG] Получен пустой массив сообщений, сохраняем текущие сообщения');
+                    return;
+                }
+                
                 const wasRunning = this.rotationTimer !== null;
                 
                 // Останавливаем текущую ротацию, если она запущена
@@ -1722,20 +1731,13 @@
                     this.stop();
                 }
                 
-                // Обновляем сообщения
+                // Обновляем сообщения только если новый массив не пустой
                 this.messages = newMessages;
                 this.currentIndex = 0;
                 
-                // Если ротация была запущена и есть новые сообщения, перезапускаем
-                if (wasRunning && this.messages.length > 0) {
+                // Если ротация была запущена, перезапускаем с новыми сообщениями
+                if (wasRunning) {
                     this.start();
-                } else if (wasRunning && this.messages.length === 0) {
-                    // Если сообщений нет, скрываем карточку
-                    if (this.card) {
-                        this.card.textContent = '';
-                        this.card.classList.remove('fade-in');
-                        this.card.classList.add('fade-out');
-                    }
                 }
             }
         }
