@@ -1745,29 +1745,30 @@
         // ============================================
         
         /**
-         * Проверяет, должно ли применяться 4K разрешение на основе эффективного разрешения
+         * Проверяет, должно ли применяться 4K разрешение
+         * Использует строгие условия: физическое разрешение должно быть 4K И viewport должен быть достаточно большим
          * @returns {boolean} true, если должно применяться 4K
          */
         function shouldApply4KStyles() {
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
-            const dpr = window.devicePixelRatio || 1;
-            const effectiveWidth = viewportWidth * dpr;
-            const effectiveHeight = viewportHeight * dpr;
-            
-            // Проверяем эффективное разрешение
-            const is4KByEffective = (effectiveWidth >= 3200 && effectiveHeight >= 1800) || effectiveWidth >= 3840;
-            
-            // Также проверяем физическое разрешение экрана
             const screenWidth = window.screen.width;
             const screenHeight = window.screen.height;
-            const is4KByScreen = (screenWidth >= 3200 && screenHeight >= 1800) || screenWidth >= 3840;
             
-            return is4KByEffective || is4KByScreen;
+            // Строгая проверка: физическое разрешение должно быть 4K (3840×2160 или близко)
+            const isPhysical4K = (screenWidth >= 3800 && screenHeight >= 2100) || screenWidth >= 3840;
+            
+            // И viewport должен быть достаточно большим (не меньше 2560px по ширине)
+            // Это предотвращает применение на маленьких окнах браузера
+            const isViewportLargeEnough = viewportWidth >= 2560;
+            
+            // Применяем только если оба условия выполнены
+            return isPhysical4K && isViewportLargeEnough;
         }
         
         /**
          * Применяет 4K стили через JavaScript, если CSS медиа-запросы не срабатывают
+         * ТОЛЬКО если физическое разрешение экрана действительно 4K
          */
         function apply4KStylesIfNeeded() {
             const shouldApply = shouldApply4KStyles();
@@ -1777,6 +1778,18 @@
             const mq4K2 = window.matchMedia('screen and (min-width: 3840px)');
             const isCSS4KActive = mq4K1.matches || mq4K2.matches;
             
+            // Удаляем стили, если они были применены, но больше не нужны
+            if (!shouldApply) {
+                document.documentElement.classList.remove('force-4k-styles');
+                const existingStyle = document.getElementById('js-4k-styles');
+                if (existingStyle) {
+                    existingStyle.remove();
+                    console.log('🔧 Удалены 4K стили (условия не выполнены)');
+                }
+                return;
+            }
+            
+            // Применяем только если нужно И CSS медиа-запросы не сработали
             if (shouldApply && !isCSS4KActive) {
                 console.log('🔧 Применяю 4K стили через JavaScript (CSS медиа-запросы не сработали)');
                 
@@ -1848,12 +1861,13 @@
                     .force-4k-styles #loading-indicator span { font-size: 1.35rem !important; }
                 `;
                 document.head.appendChild(style);
-            } else if (!shouldApply) {
-                // Удаляем класс и стили, если не нужно применять 4K
+            } else if (isCSS4KActive) {
+                // CSS медиа-запросы работают, удаляем JavaScript стили если они были применены
                 document.documentElement.classList.remove('force-4k-styles');
                 const existingStyle = document.getElementById('js-4k-styles');
                 if (existingStyle) {
                     existingStyle.remove();
+                    console.log('🔧 Удалены JavaScript 4K стили (CSS медиа-запросы активны)');
                 }
             }
         }
