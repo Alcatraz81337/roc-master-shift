@@ -581,6 +581,84 @@
             }
         }
 
+        /* Медиа-запрос для 4K экранов (3840×2160) - все размеры увеличены в 1.5 раза, кроме отступов контейнера */
+        @media screen and (min-width: 3840px) {
+            /* CSS переменные */
+            :root {
+                --radius-outer: 36px;
+                --radius-inner: 18px;
+                --gap: 24px;
+            }
+
+            /* Типографика */
+            .text-huge { font-size: 7.5rem !important; }
+            .text-big { font-size: 7.8rem !important; margin-bottom: 18px !important; }
+            .text-label { font-size: 1.125rem !important; margin-bottom: 12px !important; }
+            .text-value { font-size: 1.95rem !important; }
+            .text-desc { font-size: 2.1rem !important; }
+            .big-number-accent { font-size: 4.95rem !important; }
+            .card-effect { font-size: 2.025rem !important; padding: 22.5px 0 !important; }
+            .company-name { font-size: 2.25rem !important; }
+            .responsible-name-inline { font-size: 1.425rem !important; }
+            .card-footer { font-size: 1.35rem !important; padding-top: 30px !important; gap: 12px !important; }
+            .scroll-container { font-size: 1.35rem !important; height: 52.5px !important; margin-top: 15px !important; padding-top: 12px !important; }
+            h2 { font-size: 2.25rem !important; }
+            .header > div > div { font-size: 1.5rem !important; }
+
+            /* Отступы и зазоры (кроме body padding и grid-container max-width) */
+            .bento-card { padding: 36px !important; box-shadow: 0 6px 36px rgba(0, 0, 0, 0.2) !important; }
+            .header { padding: 0 18px !important; margin-bottom: 30px !important; min-height: 90px !important; }
+            .logo-area { gap: 24px !important; }
+            .metric-list { gap: 24px !important; margin-top: 36px !important; }
+            .metric-card { padding: 30px 36px !important; gap: 24px !important; }
+            .hero-split { padding: 60px !important; }
+            .responsible-info-inline { gap: 18px !important; padding-left: 18px !important; }
+            .responsible-group { gap: 18px !important; }
+            .card-header-with-responsible { margin-bottom: 12px !important; }
+            .metric-text-group { gap: 3px !important; }
+            .footer-highlight { margin-left: 6px !important; }
+            .notification-container { margin-top: 24px !important; min-height: 75px !important; }
+            .notification-card { padding: 18px 24px !important; font-size: 1.35rem !important; transform: translateY(15px) !important; }
+            .notification-card.fade-out { transform: translateY(-15px) !important; }
+
+            /* Размеры элементов */
+            .col-vertical { min-height: 720px !important; }
+            .card-hero { min-height: 300px !important; }
+            .logo-box { width: 60px !important; height: 60px !important; border-radius: 15px !important; font-size: 1.2rem !important; }
+            .responsible-avatar-small { width: 54px !important; height: 54px !important; }
+            .header-divider-vertical { height: 54px !important; }
+            .status-dot { width: 9px !important; height: 9px !important; }
+
+            /* Размеры логотипов (inline стили) */
+            .header img[src*="roc_logo.png"],
+            .header img[src*="emco_logo.png"],
+            .header img[style*="width: 160px"],
+            .header img[style*="160px"] {
+                width: 240px !important;
+                height: 240px !important;
+                max-width: 240px !important;
+                max-height: 240px !important;
+            }
+            .header img[src*="roc_logo.png"] {
+                border-radius: 18px !important;
+            }
+
+            /* Размеры единиц измерения в центральной карточке */
+            .hero-split span[style*="font-size: 2.25rem"] { font-size: 3.375rem !important; }
+
+            /* Эффекты */
+            .glow-lime { text-shadow: 0 0 30px rgba(212, 255, 80, 0.3) !important; }
+
+            /* Loading indicator */
+            #loading-indicator {
+                top: 30px !important;
+                right: 30px !important;
+                border-radius: 18px !important;
+                padding: 18px 30px !important;
+            }
+            #loading-indicator span { font-size: 1.35rem !important; }
+        }
+
     </style>
 </head>
 <body>
