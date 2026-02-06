@@ -763,15 +763,15 @@
                         <div class="header-divider-vertical"></div>
                         <div class="responsible-info-inline">
                             <div class="responsible-avatar-small" style="border-color: var(--color-lime);">
-                                <img src="photos/max.png" alt="Максим Карнаухов" style="width:100%; height:100%; object-fit: cover;">
+                                <img src="photos/rustam.png" alt="Рустам Акамажанов" style="width:100%; height:100%; object-fit: cover;">
                             </div>
-                            <div class="responsible-name-inline">Mаксим Карнаухов</div>
+                            <div class="responsible-name-inline">Рустам Акамажанов</div>
                         </div>
                         <div class="responsible-info-inline">
                             <div class="responsible-avatar-small" style="border-color: var(--color-lime);">
-                                <img src="photos/kira.png" alt="Кира Прокопьева" style="width:100%; height:100%; object-fit: cover;">
+                                <img src="photos/zheka.png" alt="Евгений Казаков" style="width:100%; height:100%; object-fit: cover;">
                             </div>
-                            <div class="responsible-name-inline">Кира Прокопьева</div>
+                            <div class="responsible-name-inline">Евгений Казаков</div>
                         </div>
                     </div>
                 </div>
@@ -1018,7 +1018,19 @@
                 // Временные значения - можно будет настроить позже
                 'mas-effect': { sheet: 'MAS', range: 'P14', type: 'text' },
                 'mas-event': { sheet: 'MAS', range: 'N22', type: 'text' }
-            }
+            },
+
+            // Настройки backend для записи случайных значений в Google Sheets
+            // BACKEND_BASE_URL по умолчанию указывает на локальный backend FastAPI.
+            // При деплое замените на фактический URL сервиса или настройте прокси.
+            BACKEND_BASE_URL: 'http://localhost:8001',
+
+            // Включение/выключение механизма 15‑минутной проверки для BALANCE
+            RANDOM_LOAD_ENABLED: true,
+
+            // Порог неактивности BALANCE (в минутах), после которого
+            // отправляется случайное число 1–5 в Google‑таблицу
+            RANDOM_LOAD_INTERVAL_MINUTES: 15
         };
 
         // ============================================
@@ -1287,6 +1299,135 @@
             return 0;
         }
 
+        // ============================================
+        // ОТСЛЕЖИВАНИЕ АКТИВНОСТИ BALANCE И ТРИГГЕР 15 МИНУТ
+        // ============================================
+
+        // Список метрик, относящихся к модулю BALANCE
+        const BALANCE_METRIC_KEYS = Object.entries(CONFIG.METRICS_MAPPING)
+            .filter(([metricId, cfg]) => cfg.sheet === 'BALANCE')
+            .map(([metricId]) => metricId);
+
+        // Последний снимок значений метрик BALANCE
+        let lastBalanceMetricsSnapshot = null;
+        // Время последнего изменения метрик BALANCE (мс с начала эпохи)
+        let lastBalanceMetricsChangeTime = null;
+        // Время последнего срабатывания триггера записи случайной нагрузки
+        let lastRandomLoadTriggerTime = null;
+
+        /**
+         * Обновляет время последнего изменения блока BALANCE,
+         * если его метрики изменились по сравнению с предыдущим обновлением.
+         * @param {Object} metrics - Объект всех метрик дашборда
+         */
+        function trackBalanceMetricsStaleness(metrics) {
+            try {
+                const currentSnapshot = BALANCE_METRIC_KEYS.map(key => metrics[key]);
+
+                if (!lastBalanceMetricsSnapshot) {
+                    lastBalanceMetricsSnapshot = currentSnapshot;
+                    lastBalanceMetricsChangeTime = Date.now();
+                    return;
+                }
+
+                const hasChanged = currentSnapshot.some(
+                    (value, index) => value !== lastBalanceMetricsSnapshot[index]
+                );
+
+                if (hasChanged) {
+                    lastBalanceMetricsSnapshot = currentSnapshot;
+                    lastBalanceMetricsChangeTime = Date.now();
+                }
+            } catch (error) {
+                console.error('[ERROR] Ошибка при отслеживании активности BALANCE:', error);
+            }
+        }
+
+        /**
+         * Отправляет значение 1–5 на backend для записи в Google‑таблицу.
+         * @param {string} employeeId - Идентификатор сотрудника ('rustam' или 'zheka')
+         * @param {number} value - Число 1–5
+         */
+        async function sendRandomLoadUpdate(employeeId, value) {
+            if (!CONFIG.BACKEND_BASE_URL) {
+                console.warn('[WARNING] BACKEND_BASE_URL не задан, пропускаем отправку случайной нагрузки');
+                return;
+            }
+
+            const baseUrl = CONFIG.BACKEND_BASE_URL.replace(/\/$/, '');
+            const url = `${baseUrl}/api/balance/random-load`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        employee: employeeId,
+                        value: value
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error(
+                        `[ERROR] Backend вернул статус ${response.status} при отправке нагрузки для ${employeeId}`
+                    );
+                }
+            } catch (error) {
+                console.error(`[ERROR] Ошибка при вызове backend для сотрудника ${employeeId}:`, error);
+            }
+        }
+
+        /**
+         * Проверяет, не было ли обновлений BALANCE дольше порога и при
+         * необходимости инициирует запись случайных чисел в Google‑таблицу.
+         */
+        async function maybeTriggerRandomLoadIfStale() {
+            if (!CONFIG.RANDOM_LOAD_ENABLED) return;
+
+            if (!lastBalanceMetricsChangeTime) {
+                // Если ещё ни разу не обновляли метрики BALANCE, инициализируем таймер.
+                lastBalanceMetricsChangeTime = Date.now();
+                return;
+            }
+
+            const now = Date.now();
+            const thresholdMs = CONFIG.RANDOM_LOAD_INTERVAL_MINUTES * 60 * 1000;
+
+            const timeSinceChange = now - lastBalanceMetricsChangeTime;
+            const timeSinceLastTrigger = lastRandomLoadTriggerTime
+                ? now - lastRandomLoadTriggerTime
+                : Infinity;
+
+            // Данные BALANCE обновлялись менее порога — ничего не делаем.
+            if (timeSinceChange < thresholdMs) {
+                return;
+            }
+
+            // Уже отправляли случайную нагрузку недавно — избегаем повторов.
+            if (timeSinceLastTrigger < thresholdMs) {
+                return;
+            }
+
+            // Генерируем числа 1–5 для каждого сотрудника Балансировщика.
+            const rustamValue = Math.floor(Math.random() * 5) + 1;
+            const zhekaValue = Math.floor(Math.random() * 5) + 1;
+
+            console.log('[DEBUG] BALANCE без обновлений более порога, отправляем случайную нагрузку:', {
+                rustam: rustamValue,
+                zheka: zhekaValue,
+                minutesWithoutChanges: Math.round(timeSinceChange / 60000)
+            });
+
+            await Promise.all([
+                sendRandomLoadUpdate('rustam', rustamValue),
+                sendRandomLoadUpdate('zheka', zhekaValue)
+            ]);
+
+            lastRandomLoadTriggerTime = now;
+        }
+
         /**
          * Загружает все метрики из таблицы
          * @returns {Promise<Object>} Объект с метриками
@@ -1482,6 +1623,16 @@
                 
                 console.log('[DEBUG] Данные загружены, обновление дашборда...');
                 updateDashboard(metrics);
+
+                // Отслеживаем активность блока BALANCE и, при необходимости,
+                // инициируем запись случайной нагрузки через backend.
+                trackBalanceMetricsStaleness(metrics);
+                maybeTriggerRandomLoadIfStale().catch(error => {
+                    console.error(
+                        '[ERROR] Ошибка при запуске проверки 15-минутной активности BALANCE:',
+                        error
+                    );
+                });
                 
                 // Обновляем сообщения в ротаторах
                 if (balanceRotator) {

@@ -38,7 +38,50 @@
 3. Замените ID на ID вашей таблицы
 4. Сохраните файл
 
-### 3. Структура Google Таблицы
+### 3. (Опционально) Backend для записи в Google Sheets
+
+По умолчанию дашборд только **читает** данные из Google Таблиц.  
+Для реализации бизнес-правила:
+
+> Если в течение 15 минут не обновляются данные блока BALANCE,  
+> то сгенерировать число в диапазоне 1–5 и записать его в Google‑таблицу
+
+добавлен минимальный backend‑сервис на FastAPI:
+
+- код: `backend/main.py`
+- зависимости: `backend/requirements.txt`
+
+Шаги настройки backend:
+
+1. Установите зависимости:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   ```
+2. Создайте сервисный аккаунт Google с доступом к Google Sheets и скачайте JSON‑ключ.
+3. Настройте переменные окружения (пример для PowerShell):
+   ```powershell
+   $env:GOOGLE_SERVICE_ACCOUNT_FILE="C:\path\to\service-account.json"
+   $env:BALANCER_RUSTAM_SPREADSHEET_ID="ID_ТАБЛИЦЫ_РУСТАМА"
+   $env:BALANCER_RUSTAM_RANGE="Лист1!B2"
+   $env:BALANCER_ZHEKA_SPREADSHEET_ID="ID_ТАБЛИЦЫ_ЕВГЕНИЯ"
+   $env:BALANCER_ZHEKA_RANGE="Лист1!B3"
+   ```
+4. Запустите backend:
+   ```bash
+   uvicorn backend.main:app --host 0.0.0.0 --port 8001
+   ```
+5. В `index.html` при необходимости измените:
+   ```javascript
+   BACKEND_BASE_URL: 'http://localhost:8001',
+   RANDOM_LOAD_ENABLED: true,
+   RANDOM_LOAD_INTERVAL_MINUTES: 15
+   ```
+
+После настройки фронтенд будет раз в 15 минут проверять, менялись ли метрики BALANCE.  
+Если изменений нет, для Рустама Акамажанова и Евгения Казакова генерируются числа 1–5 и отправляются на backend для записи в их таблицы.
+
+### 4. Структура Google Таблицы
 
 Дашборд ожидает следующие листы в таблице:
 - **Общие** - общие метрики (B2, B3, B4)
